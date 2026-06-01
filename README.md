@@ -1,8 +1,10 @@
+
+
 <div align="center">
-
-<img href="https://www.uwo.ca/" src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="150">
-
-
+  <a href="https://jorgelizarazo94.github.io/BurrowScope_web1/" target="_blank" rel="noopener noreferrer">
+    <img src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="250">
+  </a>
+</div>
 
 # BurrowScope
 

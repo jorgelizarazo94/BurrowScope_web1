@@ -10,7 +10,7 @@
 
 **A browser-based workspace for Bank Swallow burrow detection, segmentation, and visual inspection.**
 
-</div>
+
 
 ---
 

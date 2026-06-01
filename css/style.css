@@ -593,3 +593,32 @@ main > section,
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
+.language-switch {
+  position: static;
+}
+
+.language-switch-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 0.2rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.language-switch-inline .language-btn {
+  min-height: 1.7rem;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.68rem;
+}
+
+header .funding-strip {
+  align-self: center;
+  margin-top: 0;
+}
+
+header .funding-strip img {
+  max-height: 1.75rem;
+}

@@ -39,34 +39,23 @@
       <div class="absolute inset-0 bg-slate-50/88"></div>
     </div>
 
-    <div class="language-switch" aria-label="Language selector">
-      <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
-        <img src="img/canada_flag_mini.svg" alt="Canada flag" class="h-4 w-auto">
-        <span>EN</span>
-      </button>
-      <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
-        <img src="img/quebec_flag_mini.svg" alt="Québec flag" class="h-4 w-auto">
-        <span>FR</span>
-      </button>
-    </div>
-
     <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
       <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
         <div class="flex items-center gap-4">
-          <img
-            src="icon.svg"
-            alt="BurrowScope icon"
-            class="h-16 w-16 shrink-0 asset-img sm:h-20 sm:w-20"
-            onerror="this.style.display='none'"
-          />
+            <img
+              src="icon.svg"
+              alt="BurrowScope icon"
+              class="h-10 w-10 shrink-0 asset-img sm:h-12 sm:w-12"
+              onerror="this.style.display='none'"
+            />
           <div>
-            <h1 class="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+            <h1 class="flex items-center gap-2 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
               BurrowScope
               <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-700">
                 ONNX
               </span>
             </h1>
-            <p class="text-xs font-medium text-slate-500 sm:text-sm" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
+            <p class="text-[11px] font-medium text-slate-500 sm:text-xs" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
           </div>
         </div>
 
@@ -113,9 +102,22 @@
           />
           <div>
             <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="heroEyebrow">Training models for easier wildlife monitoring</p>
-            <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-              <span data-i18n="heroTitle">Bank Swallow burrow inspection</span>
-            </h2>
+        <div class="mt-1 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+          <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+            <span data-i18n="heroTitle">Bank Swallow burrow inspection</span>
+          </h2>
+
+          <div class="language-switch-inline" aria-label="Language selector">
+            <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
+              <img src="img/canada_flag_mini.svg" alt="Canada flag" class="h-4 w-auto">
+              <span>EN</span>
+            </button>
+            <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
+              <img src="img/quebec_flag_mini.svg" alt="Québec flag" class="h-4 w-auto">
+              <span>FR</span>
+            </button>
+          </div>
+        </div>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600" data-i18n="heroCopy">
               Run local ONNX inference on one photo or selected image batches, then review boxes, masks, centroids, and exports.
             </p>

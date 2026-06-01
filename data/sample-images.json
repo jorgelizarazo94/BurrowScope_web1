@@ -1,0 +1,72 @@
+[
+    {
+        "id":  "example_01",
+        "file":  "img/examples/example_01.jpg",
+        "original_name":  "BANS_2024_2024-07-25_C-98_seq01__IMG_6770.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2024_2024-07-25_C-98_seq01__IMG_6770.JPG",
+        "thumb":  "img/examples/thumbs/example_01_thumb.jpg"
+    },
+    {
+        "id":  "example_02",
+        "file":  "img/examples/example_02.jpg",
+        "original_name":  "BANS_2025_2025-07-26_C32025--39_seq01__IMG_1151.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-26_C32025--39_seq01__IMG_1151.JPG",
+        "thumb":  "img/examples/thumbs/example_02_thumb.jpg"
+    },
+    {
+        "id":  "example_03",
+        "file":  "img/examples/example_03.jpg",
+        "original_name":  "BANS_2024_2024-07-23_C-37_seq01__IMG_4796.jpg",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2024_2024-07-23_C-37_seq01__IMG_4796.jpg",
+        "thumb":  "img/examples/thumbs/example_03_thumb.jpg"
+    },
+    {
+        "id":  "example_04",
+        "file":  "img/examples/example_04.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--50_seq01__IMG_0992.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--50_seq01__IMG_0992.JPG",
+        "thumb":  "img/examples/thumbs/example_04_thumb.jpg"
+    },
+    {
+        "id":  "example_05",
+        "file":  "img/examples/example_05.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--50_seq01__IMG_0983.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--50_seq01__IMG_0983.JPG",
+        "thumb":  "img/examples/thumbs/example_05_thumb.jpg"
+    },
+    {
+        "id":  "example_06",
+        "file":  "img/examples/example_06.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--39_seq01__IMG_0899.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--39_seq01__IMG_0899.JPG",
+        "thumb":  "img/examples/thumbs/example_06_thumb.jpg"
+    },
+    {
+        "id":  "example_07",
+        "file":  "img/examples/example_07.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--39_seq01__IMG_0911.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--39_seq01__IMG_0911.JPG",
+        "thumb":  "img/examples/thumbs/example_07_thumb.jpg"
+    },
+    {
+        "id":  "example_08",
+        "file":  "img/examples/example_08.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--36_seq01__IMG_0884.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--36_seq01__IMG_0884.JPG",
+        "thumb":  "img/examples/thumbs/example_08_thumb.jpg"
+    },
+    {
+        "id":  "example_09",
+        "file":  "img/examples/example_09.jpg",
+        "original_name":  "BANS_2025_2025-07-22_C12025--36_seq01__IMG_0888.JPG",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2025_2025-07-22_C12025--36_seq01__IMG_0888.JPG",
+        "thumb":  "img/examples/thumbs/example_09_thumb.jpg"
+    },
+    {
+        "id":  "example_10",
+        "file":  "img/examples/example_10.jpg",
+        "original_name":  "BANS_2024_2024-07-23_C-15_seq01__IMG_4574.jpg",
+        "source_path":  "D:\\BankSwallow_Labeling\\annotation_batches\\batch_002_random\\BANS_2024_2024-07-23_C-15_seq01__IMG_4574.jpg",
+        "thumb":  "img/examples/thumbs/example_10_thumb.jpg"
+    }
+]

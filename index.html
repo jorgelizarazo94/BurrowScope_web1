@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="BurrowScope is a browser app for Bank Swallow burrow segmentation and visual inspection."
+    />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:title" content="BurrowScope - Bank Swallow Burrow Segmentation" />
+    <meta
+      property="og:description"
+      content="Per-image burrow segmentation and visual inspection workspace."
+    />
+    <meta property="og:image" content="img/burrowscope-ogimage.png" />
+    <title>BurrowScope - Bank Swallow Burrow Segmentation</title>
+
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="css/style.css?v=20260601f" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0/dist/ort.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <img
+        src="img/labelled-bank-background.jpg"
+        alt=""
+        class="h-full w-full object-cover opacity-[0.16]"
+        onerror="this.style.display='none'"
+      />
+      <div class="absolute inset-0 bg-slate-50/88"></div>
+    </div>
+
+    <div class="language-switch" aria-label="Language selector">
+      <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
+        <span class="flag">🇨🇦</span>
+        <span>EN</span>
+      </button>
+      <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
+        <span class="flag quebec-flag">⚜</span>
+        <span>FR</span>
+      </button>
+    </div>
+
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
+        <div class="flex items-center gap-4">
+          <img
+            src="icon.svg"
+            alt="BurrowScope icon"
+            class="h-16 w-16 shrink-0 asset-img sm:h-20 sm:w-20"
+            onerror="this.style.display='none'"
+          />
+          <div>
+            <h1 class="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              BurrowScope
+              <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-700">
+                ONNX
+              </span>
+            </h1>
+            <p class="text-sm font-medium text-slate-500" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 xl:items-end">
+          <div class="flex flex-wrap items-center gap-5">
+            <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
+              <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="h-12 w-auto asset-img sm:h-14" onerror="this.style.display='none'" />
+            </a>
+            <a class="logo-link" href="https://naturecounts.ca/nc/default/main.jsp" target="_blank" rel="noopener noreferrer" aria-label="Open NatureCounts">
+              <img src="img/Naturecounts-logo.svg" alt="NatureCounts" class="h-12 w-auto asset-img sm:h-14" onerror="this.style.display='none'" />
+            </a>
+            <a class="logo-link" href="https://uwo.ca/cam/index.html" target="_blank" rel="noopener noreferrer" aria-label="Open Centre for Animals on the Move">
+              <img src="img/animals-on-the-move-logo.svg" alt="Animals on the Move" class="h-12 w-auto asset-img sm:h-14" onerror="this.style.display='none'" />
+            </a>
+            <a class="logo-link" href="https://www.uwo.ca/index.html" target="_blank" rel="noopener noreferrer" aria-label="Open Western University">
+              <img src="img/western-logo.svg" alt="Western University" class="h-12 w-auto asset-img sm:h-14" onerror="this.style.display='none'" />
+            </a>
+          </div>
+          <div class="funding-strip">
+            <span data-i18n="fundingLabel">Funding and support</span>
+            <a class="logo-link" href="https://www.mitacs.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open Mitacs">
+              <img src="img/Mitacs_logo_blue.webp" alt="Mitacs" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <div class="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <img
+          src="img/sample-bank-photo.png"
+          alt=""
+          class="absolute inset-0 h-full w-full object-cover opacity-[0.18]"
+          onerror="this.style.display='none'"
+        />
+        <div class="absolute inset-0 bg-white/82"></div>
+        <div class="relative z-10 flex flex-col items-center justify-center gap-3 px-5 py-8 text-center sm:flex-row sm:gap-5 sm:text-left">
+          <img
+            src="img/bankLogo1.png"
+            alt="BurrowScope app logo"
+            class="h-40 w-40 asset-img sm:h-48 sm:w-48 lg:h-56 lg:w-56"
+            onerror="this.style.display='none'"
+          />
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="heroEyebrow">Training models for easier wildlife monitoring</p>
+            <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              <span data-i18n="heroTitle">Bank Swallow burrow inspection</span>
+            </h2>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600" data-i18n="heroCopy">
+              Run local ONNX inference on one photo or selected image batches, then review boxes, masks, centroids, and exports.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-12 lg:px-8">
+      <aside class="space-y-6 lg:col-span-4">
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Quick start</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="quickTitle">Visual inspection workflow</h2>
+            </div>
+            <div class="rounded-full bg-blue-50 p-2 text-blue-600">
+              <i data-lucide="list-checks" class="h-5 w-5"></i>
+            </div>
+          </div>
+
+          <ol class="mt-4 space-y-3 text-sm text-slate-700">
+            <li class="flex gap-3">
+              <span class="step-dot">1</span>
+              <span data-i18n="quickStep1">Choose one bank photo, selected examples, or a local image set to inspect.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="step-dot">2</span>
+              <span data-i18n="quickStep2">Run the ONNX model in your browser and keep every image local.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="step-dot">3</span>
+              <span data-i18n="quickStep3">Review post-NMS boxes, masks, centroids, and confidence behaviour.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="step-dot">4</span>
+              <span data-i18n="quickStep4">Export CSV, JSON, or an overlay PNG for local field records.</span>
+            </li>
+          </ol>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Model settings</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Detection engine</h2>
+            </div>
+            <span
+              id="validationBadge"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-slate-600"
+            >
+              Local ONNX
+            </span>
+          </div>
+
+          <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Model file</p>
+            <p id="modelName" class="mt-1 break-all font-mono text-[11px] text-slate-700">
+              bank_swallow_burrow_yolo11s_seg_production.onnx
+            </p>
+            <p id="modelStatus" class="mt-3 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">
+              Waiting for ONNX Runtime
+            </p>
+            <p class="mt-2 text-[11px] font-bold text-red-600" data-i18n="modelUpdateHint">
+              If there is an updated inference model, upload it here.
+            </p>
+          </div>
+
+          <div class="mt-4">
+            <input id="onnxFileInput" type="file" accept=".onnx" class="hidden" />
+            <button id="manualModelUpload" type="button" class="secondary-btn w-full">
+              <i data-lucide="upload" class="h-4 w-4"></i>
+              Load Local .onnx Model File
+            </button>
+          </div>
+
+          <div class="mt-5 space-y-4">
+            <label class="block">
+              <span class="flex items-center justify-between text-sm font-bold text-slate-700">
+                Confidence Threshold
+                <span id="confValue" class="font-mono text-blue-700">0.35</span>
+              </span>
+              <input id="confidenceSlider" type="range" min="0.05" max="0.95" step="0.01" value="0.35" class="mt-2 w-full accent-blue-600" />
+            </label>
+
+            <label class="block">
+              <span class="flex items-center justify-between text-sm font-bold text-slate-700">
+                IoU NMS Threshold
+                <span id="iouValue" class="font-mono text-blue-700">0.45</span>
+              </span>
+              <input id="iouSlider" type="range" min="0.10" max="0.85" step="0.01" value="0.45" class="mt-2 w-full accent-blue-600" />
+            </label>
+
+            <label class="block">
+              <span class="flex items-center justify-between text-sm font-bold text-slate-700">
+                Mask Threshold
+                <span id="maskValue" class="font-mono text-blue-700">0.55</span>
+              </span>
+              <input id="maskSlider" type="range" min="0.05" max="0.95" step="0.05" value="0.55" class="mt-2 w-full accent-blue-600" />
+            </label>
+
+            <label class="block text-sm font-bold text-slate-700">
+              Maximum detections
+              <input
+                id="maxDetections"
+                type="number"
+                min="1"
+                max="2000"
+                value="500"
+                class="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Example images</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Batch 002 random</h2>
+            </div>
+            <i data-lucide="images" class="h-6 w-6 text-blue-600"></i>
+          </div>
+          <button id="openSamplesBtn" type="button" class="mt-4 flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-blue-400 hover:bg-blue-50">
+            <span>
+              <span class="block text-sm font-extrabold text-slate-900">Open mini gallery</span>
+              <span class="mt-1 block text-xs text-slate-500">
+                <span id="selectedSampleCount">0</span> selected from 10 example photos.
+              </span>
+            </span>
+            <i data-lucide="image-plus" class="h-6 w-6 text-blue-600"></i>
+          </button>
+          <button id="runSelectedSamplesBtn" type="button" disabled class="primary-btn mt-3 w-full">
+            <i data-lucide="play-circle" class="h-4 w-4"></i>
+            Run selected examples
+          </button>
+
+          <div id="batchResultsPanel" class="mt-4 hidden rounded-xl border border-slate-200 bg-slate-50">
+            <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+              <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Batch results</p>
+              <span class="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-extrabold text-white">
+                <span id="batchTotalCount">0</span> burrows
+              </span>
+            </div>
+            <div class="max-h-56 overflow-auto">
+              <table class="min-w-full divide-y divide-slate-200 text-xs">
+                <thead class="sticky top-0 bg-slate-100 text-left uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th class="px-3 py-2">Image</th>
+                    <th class="px-3 py-2 text-right">Burrows</th>
+                  </tr>
+                </thead>
+                <tbody id="batchResultsBody" class="divide-y divide-slate-200"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Image input</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Bank photo</h2>
+            </div>
+            <i data-lucide="image" class="h-6 w-6 text-blue-600"></i>
+          </div>
+
+          <label
+            id="imageInputLabel"
+            for="imageInput"
+            class="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
+          >
+            <i data-lucide="upload-cloud" class="h-9 w-9 text-blue-600"></i>
+            <span class="mt-2 text-sm font-extrabold text-slate-900">Upload Bank Photo</span>
+            <span class="mt-1 text-xs text-slate-500">JPG, PNG, or WebP</span>
+          </label>
+          <input id="imageInput" type="file" accept="image/*" class="hidden" />
+
+          <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p id="imageName" class="text-sm font-bold text-slate-800">No image loaded</p>
+            <p id="imageMeta" class="mt-1 text-xs text-slate-500">Choose a bank-wall image first.</p>
+          </div>
+        </section>
+      </aside>
+
+      <section class="space-y-6 lg:col-span-8">
+        <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div class="flex flex-col gap-4 border-b border-slate-200 p-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Visual workspace</p>
+              <h2 class="mt-1 text-xl font-extrabold text-slate-900">Per-image burrow detection</h2>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="runBtn" type="button" disabled class="primary-btn">
+                <i data-lucide="play" class="h-4 w-4"></i>
+                <span id="runBtnText">Run Burrow Detection</span>
+              </button>
+              <button id="instructionsBtn" type="button" class="danger-btn" title="Export technical PDF instructions">
+                <i data-lucide="file-text" class="h-4 w-4"></i>
+                Instructions
+              </button>
+              <button id="exportCsvBtn" type="button" disabled class="icon-btn" title="Export CSV">
+                <i data-lucide="file-spreadsheet" class="h-4 w-4"></i>
+              </button>
+              <button id="exportJsonBtn" type="button" disabled class="icon-btn" title="Export JSON">
+                <i data-lucide="braces" class="h-4 w-4"></i>
+              </button>
+              <button id="exportPngBtn" type="button" disabled class="icon-btn" title="Export overlay PNG">
+                <i data-lucide="download" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <div class="canvas-frame relative flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-inner">
+              <canvas id="viewerCanvas" class="block h-auto max-h-[75vh] max-w-full"></canvas>
+              <div class="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
+                Masks, boxes, and centroids render here.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-6">
+          <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-200 p-4">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Detections dashboard</p>
+                <h2 class="mt-1 text-lg font-extrabold text-slate-900">Burrows Detected</h2>
+              </div>
+              <span
+                id="postNmsCountBadge"
+                class="rounded-full bg-blue-600 px-3 py-1 text-sm font-extrabold text-white"
+                title="Post-NMS box count"
+                aria-label="Post-NMS box count"
+              >
+                <span id="countValue">0</span>
+                <span class="count-badge-label">post-NMS boxes</span>
+              </span>
+            </div>
+            <div
+              id="maskStatusArea"
+              class="mask-status-area"
+              role="status"
+              aria-live="polite"
+              data-warning-message="Boxes decoded. Masks unavailable for some detections."
+            >
+              <div class="flex items-start gap-3">
+                <i data-lucide="shield-alert" class="mt-0.5 h-4 w-4 text-amber-600"></i>
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Mask status</p>
+                  <p id="maskStatusText" class="mt-1 text-xs text-slate-600">
+                    Counts report decoded post-NMS boxes; mask availability can be reported separately.
+                  </p>
+                  <p id="maskUnavailableWarning" class="mask-warning hidden">
+                    Boxes decoded. Masks unavailable for some detections.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="max-h-[380px] overflow-auto">
+              <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th class="px-3 py-3">ID</th>
+                    <th class="px-3 py-3">Confidence</th>
+                    <th class="px-3 py-3">Centroid</th>
+                    <th class="px-3 py-3">Bounding box</th>
+                    <th class="px-3 py-3">Mask px / status</th>
+                  </tr>
+                </thead>
+                <tbody id="detectionsBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="5" class="px-3 py-8 text-center text-slate-400">No predictions yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="thresholdDiagnostics" class="threshold-diagnostics">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Threshold diagnostics</p>
+                  <p class="mt-1 text-xs text-slate-500">Decode, NMS, and mask checks are tracked independently.</p>
+                </div>
+                <i data-lucide="sliders-horizontal" class="h-5 w-5 text-blue-600"></i>
+              </div>
+              <div class="mt-3 overflow-x-auto">
+                <table class="diagnostic-table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Confidence cutoff</th>
+                      <td id="diagnosticConfidenceThreshold" data-threshold-source="confidenceSlider">0.35</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">IoU NMS cutoff</th>
+                      <td id="diagnosticIouThreshold" data-threshold-source="iouSlider">0.45</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Mask cutoff</th>
+                      <td id="diagnosticMaskThreshold" data-threshold-source="maskSlider">0.55</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Max detections</th>
+                      <td id="diagnosticMaxDetections" data-threshold-source="maxDetections">500</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Decoded boxes</th>
+                      <td id="diagnosticDecodedBoxes">Awaiting inference</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Post-NMS boxes</th>
+                      <td id="diagnosticPostNmsBoxes" data-count-source="countValue">0</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Mask availability</th>
+                      <td id="diagnosticMaskAvailability">Awaiting inference</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </section>
+    </main>
+
+    <section class="neural-console-section mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
+      <div class="neural-console">
+        <div class="neural-console-watermark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="relative z-10 flex items-center justify-between gap-3 border-b border-emerald-400/20 px-4 py-3">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300" data-i18n="consoleEyebrow">Processing log</p>
+            <h2 class="terminal-title" data-i18n="consoleTitle">Session</h2>
+          </div>
+          <span class="terminal-led">ONNX LOCAL</span>
+        </div>
+        <pre id="logBox" class="relative z-10 h-40 overflow-auto p-4 text-[11px] leading-5">Ready.</pre>
+      </div>
+    </section>
+
+    <footer class="mt-4 border-t border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+        <div>
+          <p class="text-sm font-extrabold text-slate-900">BurrowScope Initiative</p>
+          <p class="mt-1 text-xs text-slate-500" data-i18n="footerCopy">Bank Swallow burrow segmentation and inspection workspace.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-5 opacity-85">
+          <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
+            <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
+          </a>
+          <a class="logo-link" href="https://naturecounts.ca/nc/default/main.jsp" target="_blank" rel="noopener noreferrer" aria-label="Open NatureCounts">
+            <img src="img/Naturecounts-logo.svg" alt="NatureCounts" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
+          </a>
+          <a class="logo-link" href="https://uwo.ca/cam/index.html" target="_blank" rel="noopener noreferrer" aria-label="Open Centre for Animals on the Move">
+            <img src="img/animals-on-the-move-logo.svg" alt="Animals on the Move" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
+          </a>
+          <a class="logo-link" href="https://www.uwo.ca/index.html" target="_blank" rel="noopener noreferrer" aria-label="Open Western University">
+            <img src="img/western-logo.svg" alt="Western University" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
+          </a>
+          <span class="footer-funding-label" data-i18n="fundingLabel">Funding and support</span>
+          <a class="logo-link" href="https://www.mitacs.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open Mitacs">
+            <img src="img/Mitacs_logo_blue.webp" alt="Mitacs" class="h-7 w-auto asset-img" onerror="this.style.display='none'" />
+          </a>
+        </div>
+        <p class="text-[11px] font-medium lowercase tracking-wide text-slate-500">
+          jorge lizarazo-borrero, yolanda morbey, simon bonner, gabriel evans-cook, natasha barlow
+        </p>
+      </div>
+    </footer>
+
+    <div id="termsPausedBar" class="terms-paused-bar hidden">
+      <span data-i18n="pausedText">Use is paused until the local-use conditions are accepted.</span>
+      <button type="button" id="reviewTermsBtn" data-i18n="reviewTerms">Review terms</button>
+    </div>
+
+    <div id="termsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
+      <div class="terms-card relative w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl">
+        <img src="img/animals-on-the-move-logo.svg" alt="" class="terms-watermark terms-watermark-left asset-img" onerror="this.style.display='none'" />
+        <img src="img/western-logo.svg" alt="" class="terms-watermark terms-watermark-right asset-img" onerror="this.style.display='none'" />
+
+        <div class="relative z-10 flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-4">
+            <img src="img/bankLogo1.png" alt="BurrowScope" class="h-20 w-20 asset-img" onerror="this.style.display='none'" />
+            <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="h-14 w-auto asset-img" onerror="this.style.display='none'" />
+          </div>
+          <div class="flex gap-2 sm:self-start">
+            <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
+              <span class="flag">🇨🇦</span>
+              <span>EN</span>
+            </button>
+            <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
+              <span class="flag quebec-flag">⚜</span>
+              <span>FR</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative z-10 p-6">
+          <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="termsEyebrow">Local ONNX workspace</p>
+          <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900" data-i18n="termsTitle">Use conditions</h2>
+          <div class="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+            <p data-i18n="termsP1">BurrowScope is provided for non-profit research, conservation, and field inspection work.</p>
+            <p data-i18n="termsP2">The inference engine runs locally in this browser through ONNX Runtime. Your images, masks, counts, and exported results are not sent to a cloud service by this app.</p>
+            <p data-i18n="termsP3">Review the outputs before using them in reports. The tool supports per-image burrow segmentation and visual inspection.</p>
+          </div>
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button id="termsInstructionsBtn" type="button" class="danger-btn">
+              <i data-lucide="file-text" class="h-4 w-4"></i>
+              Instructions
+            </button>
+            <button id="declineTermsBtn" type="button" class="secondary-btn" data-i18n="termsDecline">Do not accept</button>
+            <button id="acceptTermsBtn" type="button" class="primary-btn" data-i18n="termsAccept">Accept and continue locally</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sampleModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-950/65 p-4">
+      <div class="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+        <div class="flex items-center justify-between gap-4 border-b border-slate-200 p-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Batch 002 random</p>
+            <h2 class="text-xl font-extrabold text-slate-900">Select example images</h2>
+            <p class="mt-1 text-xs text-slate-500">
+              <span id="selectedSampleCountModal">0</span> selected. Choose several and run them as a batch.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button id="selectAllSamplesBtn" type="button" class="secondary-btn">Select all</button>
+            <button id="clearSamplesBtn" type="button" class="secondary-btn">Clear</button>
+            <button id="runSelectedSamplesModalBtn" type="button" disabled class="primary-btn">
+              <i data-lucide="play-circle" class="h-4 w-4"></i>
+              Run selected
+            </button>
+            <button id="closeSamplesBtn" type="button" class="icon-btn" aria-label="Close example images">
+              <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </div>
+        <div id="sampleGrid" class="grid gap-3 overflow-y-auto p-4 sm:grid-cols-2 lg:grid-cols-3">
+          <p class="text-sm text-slate-500">Loading examples...</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/image-utils.js?v=20260601b"></script>
+    <script src="js/yolo-seg-postprocess.js?v=20260601c"></script>
+    <script src="js/app.js?v=20260601i"></script>
+  </body>
+</html>

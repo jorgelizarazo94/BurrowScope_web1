@@ -1,0 +1,49 @@
+@"
+# Local/editor files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Chrome/debug/test artefacts
+.chrome-*/
+.chrome-*
+*.log
+
+# Python/cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Training artefacts - do not publish
+runs/
+training_runs/
+datasets/
+notebooks/
+*.pt
+*.pth
+*.pkl
+*.ckpt
+
+# Large/raw research data - do not publish
+raw/
+raw_images/
+annotation_batches/
+labels/
+exports_raw/
+
+# Keep web app assets
+!index.html
+!404.html
+!README.md
+!NOTICE.md
+!site.webmanifest
+!icon.svg
+!favicon.ico
+!css/**
+!js/**
+!img/**
+!data/**
+!docs/**
+!models/*.onnx
+"@ | Out-File -Encoding utf8 .gitignore

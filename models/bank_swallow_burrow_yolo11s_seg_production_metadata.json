@@ -1,0 +1,17 @@
+{
+  "app_name": "BurrowScope",
+  "model_name": "bank_swallow_burrow_yolo11s_seg_production.onnx",
+  "model_family": "YOLO11 segmentation",
+  "class_names": {
+    "0": "burrow"
+  },
+  "default_confidence_threshold": 0.2,
+  "default_iou_threshold": 0.5,
+  "default_mask_threshold": 0.5,
+  "image_size": 1024,
+  "model_badge": "Local ONNX",
+  "validation_status": "local inference model",
+  "recommended_use": "per-image burrow segmentation and visual inspection",
+  "recommended_confidence_threshold": 0.2,
+  "scope_note": "Per-image burrow segmentation only. Duplicate counting across overlapping photos is not solved here."
+}

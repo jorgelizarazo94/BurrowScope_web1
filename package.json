@@ -1,0 +1,19 @@
+{
+  "name": "bank-web1",
+  "version": "0.1.0",
+  "description": "Local browser app for Bank Swallow burrow segmentation with YOLO ONNX.",
+  "private": true,
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "serve": "python -m http.server 8080"
+  },
+  "keywords": [
+    "onnx",
+    "yolo",
+    "segmentation",
+    "bank-swallow",
+    "burrow"
+  ],
+  "author": "Jorge Lizarazo",
+  "license": "UNLICENSED"
+}

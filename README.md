@@ -36,6 +36,7 @@ This version focuses on **per-image burrow detection and segmentation**. It does
 
 ---
 
+<div align="center">
 
 <br>
 

@@ -41,9 +41,9 @@ This version focuses on **per-image burrow detection and segmentation**. It does
   &nbsp;&nbsp;&nbsp;
   <img src="img/Naturecounts-logo.svg" alt="NatureCounts logo" height="90">
   &nbsp;&nbsp;&nbsp;
-  <img src="img/western-logo.svg" alt="Western University logo" height="90">
-  &nbsp;&nbsp;&nbsp;
   <img src="img/animals-on-the-move-logo.svg" alt="Centre for Animals on the Move logo" height="90">
+  &nbsp;&nbsp;&nbsp;
+  <img src="img/western-logo.svg" alt="Western University logo" height="90">
 </div>
 
 ---

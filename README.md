@@ -37,13 +37,24 @@ This version focuses on **per-image burrow detection and segmentation**. It does
 ---
 
 <div align="center">
-  <img src="img/birds-canada-logo.svg" alt="Birds Canada logo" height="50">
+  <a href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer">
+    <img src="img/birds-canada-logo.svg" alt="Birds Canada logo" height="50">
+  </a>
   &nbsp;&nbsp;&nbsp;
-  <img src="img/Naturecounts-logo.svg" alt="NatureCounts logo" height="50">
+
+  <a href="https://naturecounts.ca/nc/default/main.jsp" target="_blank" rel="noopener noreferrer">
+    <img src="img/Naturecounts-logo.svg" alt="NatureCounts logo" height="50">
+  </a>
   &nbsp;&nbsp;&nbsp;
-  <img src="img/animals-on-the-move-logo.svg" alt="Centre for Animals on the Move logo" height="50">
+
+  <a href="https://uwo.ca/cam/index.html" target="_blank" rel="noopener noreferrer">
+    <img src="img/animals-on-the-move-logo.svg" alt="Centre for Animals on the Move logo" height="50">
+  </a>
   &nbsp;&nbsp;&nbsp;
-  <img src="img/western-logo.svg" alt="Western University logo" height="50">
+
+  <a href="https://www.uwo.ca/" target="_blank" rel="noopener noreferrer">
+    <img src="img/western-logo.svg" alt="Western University logo" height="50">
+  </a>
 </div>
 
 ---

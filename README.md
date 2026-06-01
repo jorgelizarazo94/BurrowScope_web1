@@ -36,9 +36,6 @@ This version focuses on **per-image burrow detection and segmentation**. It does
 
 ---
 
-<div align="center">
-
-<img src="icon.svg" alt="BurrowScope logo" width="120">
 
 <br>
 

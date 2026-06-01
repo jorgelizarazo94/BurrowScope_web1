@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="95">
+<img src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="150">
 
 
 # BurrowScope

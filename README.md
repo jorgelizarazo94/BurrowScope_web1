@@ -1,6 +1,7 @@
 <div align="center">
 
-<img src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="150">
+<img href="https://www.uwo.ca/" src="img/burrowscope-logo.svg" alt="BurrowScope logo" width="150">
+
 
 
 # BurrowScope

@@ -49,6 +49,6 @@ This version focuses on **per-image burrow detection and segmentation**. It does
 ---
 
 ### Funding by
-<img src="img/Mitacs_logo_blue.webp" alt="BurrowScope logo" width="95">
+<img src="img/Mitacs_logo_blue.webp" alt="BurrowScope logo" width="200">
 
 ---

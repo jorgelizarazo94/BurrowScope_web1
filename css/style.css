@@ -489,8 +489,10 @@ main > section,
 }
 
 .birds-logo {
-  height: 2.15rem;
+  height: 4.4rem;
   width: auto;
+  max-width: none;
+  flex-shrink: 0;
 }
 
 .footer-logo-row {
@@ -692,6 +694,6 @@ header .funding-strip img {
   }
 
   .birds-logo {
-    height: 1.9rem;
+    height: 3.4rem;
   }
 }

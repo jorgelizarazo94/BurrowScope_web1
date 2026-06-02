@@ -1220,12 +1220,12 @@ function exportPng() {
 }
 
 const PDF_LOGOS = [
-  { src: "img/bankLogo1.png", width: 22, height: 22 },
-  { src: "img/birds-canada-logo.svg", width: 30, height: 16 },
-  { src: "img/Naturecounts-logo.svg", width: 36, height: 14 },
-  { src: "img/animals-on-the-move-logo.svg", width: 34, height: 16 },
-  { src: "img/western-logo.svg", width: 36, height: 14 },
-  { src: "img/Mitacs_logo_blue.webp", width: 30, height: 10 },
+  { src: "img/bankLogo1.png", width: 22, height: 22, row: 0, maxHeight: 12 },
+  { src: "img/birds-canada-logo.svg", width: 30, height: 16, row: 0, maxHeight: 10 },
+  { src: "img/Naturecounts-logo.svg", width: 36, height: 14, row: 0, maxHeight: 9.5 },
+  { src: "img/animals-on-the-move-logo.svg", width: 34, height: 16, row: 1, maxHeight: 9.5 },
+  { src: "img/western-logo.svg", width: 36, height: 14, row: 1, maxHeight: 9.5 },
+  { src: "img/Mitacs_logo_blue.webp", width: 30, height: 10, row: 1, maxHeight: 7.5 },
 ];
 
 function getInstructionSettings() {
@@ -1435,23 +1435,53 @@ async function loadPdfLogos() {
   return logos.filter(Boolean);
 }
 
-function addPdfHeader(doc, logos, language, pageWidth, margin) {
+function getPdfLogoRenderSize(logo) {
+  const maxHeight = logo.maxHeight || logo.height || 10;
+  const aspectRatio = (logo.width || 1) / Math.max(logo.height || 1, 1);
+  return {
+    width: maxHeight * aspectRatio,
+    height: maxHeight,
+  };
+}
+
+function drawPdfLogoRow(doc, logos, pageWidth, margin, y) {
+  if (!logos.length) return y;
+  const gap = 5;
+  const renderLogos = logos.map((logo) => ({
+    ...logo,
+    render: getPdfLogoRenderSize(logo),
+  }));
+  const totalWidth = renderLogos.reduce((sum, logo) => sum + logo.render.width, 0) + (gap * Math.max(renderLogos.length - 1, 0));
   let x = margin;
-  const y = 10;
-  logos.forEach((logo) => {
+  const availableWidth = pageWidth - (margin * 2) - 28;
+  if (totalWidth < availableWidth) {
+    x += (availableWidth - totalWidth) / 2;
+  }
+
+  renderLogos.forEach((logo) => {
     try {
-      doc.addImage(logo.dataUrl, "PNG", x, y, logo.width, logo.height, undefined, "FAST");
-      x += logo.width + 4;
+      doc.addImage(logo.dataUrl, "PNG", x, y, logo.render.width, logo.render.height, undefined, "FAST");
     } catch (err) {
-      x += logo.width + 4;
+      // Skip silently and keep layout moving.
     }
+    x += logo.render.width + gap;
   });
+
+  return y + Math.max(...renderLogos.map((logo) => logo.render.height));
+}
+
+function addPdfHeader(doc, logos, language, pageWidth, margin) {
+  const topRow = logos.filter((logo) => (logo.row || 0) === 0);
+  const bottomRow = logos.filter((logo) => (logo.row || 0) === 1);
+  const topY = 9;
+  const firstRowBottom = drawPdfLogoRow(doc, topRow, pageWidth, margin, topY);
+  const secondRowBottom = drawPdfLogoRow(doc, bottomRow, pageWidth, margin, firstRowBottom + 3);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(37, 99, 235);
-  doc.text(language, pageWidth - margin, 14, { align: "right" });
+  doc.text(language, pageWidth - margin, 12, { align: "right" });
   doc.setDrawColor(219, 227, 234);
-  doc.line(margin, 35, pageWidth - margin, 35);
+  doc.line(margin, secondRowBottom + 5, pageWidth - margin, secondRowBottom + 5);
 }
 
 function addWrappedPdfText(doc, text, x, y, width, lineHeight) {
@@ -1464,7 +1494,7 @@ function ensurePdfSpace(doc, y, needed, logos, language, pageWidth, pageHeight, 
   if (y + needed <= pageHeight - margin) return y;
   doc.addPage();
   addPdfHeader(doc, logos, language, pageWidth, margin);
-  return 45;
+  return 55;
 }
 
 function addInstructionLanguage(doc, section, logos, isFirstPage) {
@@ -1475,7 +1505,7 @@ function addInstructionLanguage(doc, section, logos, isFirstPage) {
   if (!isFirstPage) doc.addPage();
   addPdfHeader(doc, logos, section.language, pageWidth, margin);
 
-  let y = 45;
+  let y = 55;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.setTextColor(15, 23, 42);

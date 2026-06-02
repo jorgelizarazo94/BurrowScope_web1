@@ -493,6 +493,8 @@ main > section,
   width: auto;
   max-width: none;
   flex-shrink: 0;
+  transform: scale(1.32);
+  transform-origin: left center;
 }
 
 .footer-logo-row {
@@ -695,5 +697,6 @@ header .funding-strip img {
 
   .birds-logo {
     height: 3.4rem;
+    transform: scale(1.2);
   }
 }

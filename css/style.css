@@ -493,7 +493,7 @@ main > section,
   width: auto;
   max-width: none;
   flex-shrink: 0;
-  transform: scale(1.18);
+  transform: scale(1.09);
   transform-origin: left center;
 }
 

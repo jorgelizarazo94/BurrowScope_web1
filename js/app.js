@@ -20,6 +20,8 @@ let lastThresholdDiagnostics = [];
 let activeLanguage = "en";
 let termsAccepted = false;
 let termsDeclined = false;
+let sessionAnalyses = [];
+let currentAnalysisIndex = -1;
 
 const TRANSLATIONS = {
   en: {
@@ -375,6 +377,148 @@ function serialiseDetection(det, index) {
   };
 }
 
+function buildSessionRowsFromAnalysis(analysis) {
+  const rows = analysis?.rows || [];
+  if (!rows.length) {
+    return [{
+      session_image_index: analysis?.session_index ?? "",
+      image_name: analysis?.name || "",
+      id: "",
+      class_id: "",
+      class_name: "",
+      confidence: "",
+      x1: "",
+      y1: "",
+      x2: "",
+      y2: "",
+      width: "",
+      height: "",
+      centroid_x: "",
+      centroid_y: "",
+      mask_available: "",
+      mask_status: "no_detections",
+      mask_area_px: "",
+      count_source: "no_detections",
+      box_status: "",
+      mask_polygon_points: "",
+      threshold_confidence: analysis?.thresholds?.confidence ?? "",
+      threshold_iou: analysis?.thresholds?.iou ?? "",
+      threshold_mask: analysis?.thresholds?.mask ?? "",
+      model_name: analysis?.model_name || metadata?.model_name || MODEL_URL,
+      notes: "Image analysed with zero detections.",
+    }];
+  }
+  return rows.map((row) => ({
+    session_image_index: analysis?.session_index ?? "",
+    image_name: analysis?.name || row.image_name || "",
+    ...row,
+  }));
+}
+
+function updateAnalysisNavigation() {
+  const total = sessionAnalyses.length;
+  const prevBtn = qs("prevAnalysedBtn");
+  const nextBtn = qs("nextAnalysedBtn");
+  const status = qs("analysisNavStatus");
+  if (prevBtn) prevBtn.disabled = total <= 1 || currentAnalysisIndex <= 0;
+  if (nextBtn) nextBtn.disabled = total <= 1 || currentAnalysisIndex < 0 || currentAnalysisIndex >= total - 1;
+  if (status) {
+    status.innerText = total > 0
+      ? `Analysed image ${currentAnalysisIndex + 1} of ${total}: ${sessionAnalyses[currentAnalysisIndex]?.name || "Unnamed image"}`
+      : "No analysed images in this session.";
+  }
+}
+
+function drawStoredDetections() {
+  drawBaseImage();
+  const canvas = qs("viewerCanvas");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const display = {
+    width: canvas.width,
+    height: canvas.height,
+    originalWidth: currentImage.naturalWidth,
+    originalHeight: currentImage.naturalHeight,
+  };
+  const drawOptions = {
+    maskThreshold: Number(qs("maskSlider").value),
+    maskOpacity: 0.42,
+    masksOptional: true,
+  };
+  if (typeof window.BurrowYoloSeg.drawDetectionMasks === "function") {
+    try {
+      window.BurrowYoloSeg.drawDetectionMasks(ctx, currentDetections, display, drawOptions);
+      return;
+    } catch (err) {
+      logLine(`Stored overlay used boxes only: ${err.message}`);
+    }
+  }
+  drawBoxesFallback(ctx, currentDetections, display);
+}
+
+function renderLoadedAnalysis() {
+  qs("countValue").innerText = String(currentDetections.length);
+  qs("exportCsvBtn").disabled = sessionAnalyses.length === 0;
+  qs("exportJsonBtn").disabled = currentDetections.length === 0;
+  qs("exportPngBtn").disabled = currentDetections.length === 0;
+  updateDetectionDiagnostics(currentDetections);
+  renderTable();
+  updateAnalysisNavigation();
+  drawStoredDetections();
+}
+
+function loadImageFromSource(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Could not reload analysed image from ${src}`));
+    img.src = src;
+  });
+}
+
+function storeCurrentAnalysis() {
+  if (!currentImage) return;
+  const rows = predictionRows();
+  const analysis = {
+    name: currentImageName,
+    src: currentImage.currentSrc || currentImage.src,
+    width: currentImage.naturalWidth,
+    height: currentImage.naturalHeight,
+    detections: currentDetections.map(serialiseDetection),
+    rows,
+    thresholds: {
+      confidence: Number(qs("confidenceSlider").value),
+      iou: Number(qs("iouSlider").value),
+      mask: Number(qs("maskSlider").value),
+    },
+    model_name: metadata?.model_name || MODEL_URL,
+  };
+  const existingIndex = sessionAnalyses.findIndex((item) => item.src === analysis.src && item.name === analysis.name);
+  if (existingIndex >= 0) {
+    sessionAnalyses[existingIndex] = analysis;
+    currentAnalysisIndex = existingIndex;
+  } else {
+    sessionAnalyses.push(analysis);
+    currentAnalysisIndex = sessionAnalyses.length - 1;
+  }
+  sessionAnalyses.forEach((item, index) => {
+    item.session_index = index + 1;
+  });
+  updateAnalysisNavigation();
+}
+
+async function showAnalysisAt(index) {
+  if (index < 0 || index >= sessionAnalyses.length) return;
+  const analysis = sessionAnalyses[index];
+  const img = await loadImageFromSource(analysis.src);
+  currentImage = img;
+  currentImageName = analysis.name;
+  currentDetections = analysis.detections.map((det) => ({ ...det, box: { ...det.box }, centroid: { ...det.centroid }, mask: { ...det.mask } }));
+  currentAnalysisIndex = index;
+  qs("imageName").innerText = analysis.name;
+  qs("imageMeta").innerText = `${analysis.width} x ${analysis.height}px`;
+  renderLoadedAnalysis();
+}
+
 function statusCounts(detections, reader) {
   const counts = new Map();
   detections.forEach((det) => {
@@ -490,6 +634,7 @@ function setCurrentImage(img, name) {
   qs("countValue").innerText = "0";
   refreshUsageGate();
   resetDetectionDiagnostics();
+  updateAnalysisNavigation();
   renderTable();
   logLine(`Image loaded: ${name}`);
 }
@@ -866,11 +1011,13 @@ function decodeAndRender({ diagnostics = false } = {}) {
 
   const count = currentDetections.length;
   qs("countValue").innerText = String(count);
-  qs("exportCsvBtn").disabled = count === 0;
+  qs("exportCsvBtn").disabled = count === 0 && sessionAnalyses.length === 0;
   qs("exportJsonBtn").disabled = count === 0;
   qs("exportPngBtn").disabled = count === 0;
   updateDetectionDiagnostics(currentDetections);
   renderTable();
+  storeCurrentAnalysis();
+  updateAnalysisNavigation();
   if (diagnostics) {
     logPostProcessSummary(currentDetections, decodeOptions);
     logThresholdDiagnostics();
@@ -943,8 +1090,57 @@ function predictionRows() {
   });
 }
 
+function computeMean(values) {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function computeStandardDeviation(values) {
+  if (values.length <= 1) return 0;
+  const mean = computeMean(values);
+  const variance = values.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / (values.length - 1);
+  return Math.sqrt(Math.max(variance, 0));
+}
+
+function buildSessionSummaryRows() {
+  const confidenceThreshold = Number(qs("confidenceSlider").value);
+  return sessionAnalyses.map((analysis) => {
+    const detections = analysis?.detections || [];
+    const confidences = detections
+      .map((det) => Number(det?.confidence))
+      .filter((value) => Number.isFinite(value));
+    const burrowCount = detections.length;
+    const meanConfidence = computeMean(confidences);
+    const confidenceSd = computeStandardDeviation(confidences);
+    const lowConfidenceFraction = burrowCount
+      ? confidences.filter((value) => value < Math.max(0.35, confidenceThreshold + 0.1)).length / burrowCount
+      : 0;
+
+    // Heuristic uncertainty proxy, not a calibrated predictive interval.
+    const relativeUncertainty = burrowCount
+      ? Math.min(0.95, 0.08 + (0.55 * lowConfidenceFraction) + (0.35 * confidenceSd / Math.max(meanConfidence, 0.15)))
+      : 0;
+    const estimatedCountSd = burrowCount * relativeUncertainty;
+
+    return {
+      session_image_index: analysis?.session_index ?? "",
+      image_name: analysis?.name || "",
+      burrow_count: burrowCount,
+      mean_confidence: Number(meanConfidence.toFixed(4)),
+      confidence_sd: Number(confidenceSd.toFixed(4)),
+      low_confidence_fraction: Number(lowConfidenceFraction.toFixed(4)),
+      estimated_count_sd: Number(estimatedCountSd.toFixed(2)),
+      uncertainty_note: burrowCount
+        ? "Heuristic estimate from confidence spread and low-confidence detections; not calibrated ground-truth error."
+        : "No detections in this analysed image.",
+    };
+  });
+}
+
 function exportCsv() {
-  const rows = predictionRows();
+  const rows = sessionAnalyses.length
+    ? sessionAnalyses.flatMap(buildSessionRowsFromAnalysis)
+    : predictionRows();
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
   const lines = [
@@ -952,10 +1148,39 @@ function exportCsv() {
     ...rows.map((row) => headers.map((h) => window.BurrowImageUtils.csvEscape(row[h])).join(",")),
   ];
   window.BurrowImageUtils.downloadTextFile(
-    `${currentImageName || "burrows"}_burrowscope_predictions.csv`,
+    `burrowscope_session_predictions.csv`,
     lines.join("\n"),
     "text/csv",
   );
+
+  const summaryRows = sessionAnalyses.length
+    ? buildSessionSummaryRows()
+    : [{
+      session_image_index: 1,
+      image_name: currentImageName || "",
+      burrow_count: currentDetections.length,
+      mean_confidence: Number(computeMean(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
+      confidence_sd: Number(computeStandardDeviation(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
+      low_confidence_fraction: currentDetections.length
+        ? Number((currentDetections.filter((det) => getDetectionConfidence(det) < Math.max(0.35, Number(qs("confidenceSlider").value) + 0.1)).length / currentDetections.length).toFixed(4))
+        : 0,
+      estimated_count_sd: Number((currentDetections.length * 0.08).toFixed(2)),
+      uncertainty_note: currentDetections.length
+        ? "Heuristic estimate from confidence spread and low-confidence detections; not calibrated ground-truth error."
+        : "No detections in this analysed image.",
+    }];
+  const summaryHeaders = Object.keys(summaryRows[0]);
+  const summaryLines = [
+    summaryHeaders.join(","),
+    ...summaryRows.map((row) => summaryHeaders.map((h) => window.BurrowImageUtils.csvEscape(row[h])).join(",")),
+  ];
+  window.BurrowImageUtils.downloadTextFile(
+    `burrowscope_session_image_summary.csv`,
+    summaryLines.join("\n"),
+    "text/csv",
+  );
+
+  logLine(`Detailed CSV and image-summary CSV exported for ${sessionAnalyses.length || 1} analysed image(s).`);
 }
 
 function exportJson() {
@@ -1380,6 +1605,12 @@ async function initApp() {
     if (event.key === "Escape") closeSampleModal();
   });
   qs("runBtn").addEventListener("click", runInference);
+  qs("prevAnalysedBtn")?.addEventListener("click", () => {
+    if (currentAnalysisIndex > 0) showAnalysisAt(currentAnalysisIndex - 1).catch((err) => logLine(`Could not open previous analysed image: ${err.message}`));
+  });
+  qs("nextAnalysedBtn")?.addEventListener("click", () => {
+    if (currentAnalysisIndex >= 0 && currentAnalysisIndex < sessionAnalyses.length - 1) showAnalysisAt(currentAnalysisIndex + 1).catch((err) => logLine(`Could not open next analysed image: ${err.message}`));
+  });
   qs("instructionsBtn").addEventListener("click", exportInstructionsPdf);
   qs("exportCsvBtn").addEventListener("click", exportCsv);
   qs("exportJsonBtn").addEventListener("click", exportJson);
@@ -1393,6 +1624,7 @@ async function initApp() {
   await loadSampleImages();
   await loadMetadata();
   await autoLoadModel();
+  updateAnalysisNavigation();
   refreshUsageGate();
 }
 

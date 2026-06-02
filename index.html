@@ -20,7 +20,7 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icon.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="css/style.css?v=20260601f" />
+    <link rel="stylesheet" href="css/style.css?v=20260602b" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0/dist/ort.min.js"></script>
@@ -42,12 +42,12 @@
     <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
       <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-start xl:gap-8">
         <div class="flex items-center gap-4">
-            <img
-              src="icon.svg"
-              alt="BurrowScope icon"
-              class="h-10 w-10 shrink-0 asset-img sm:h-12 sm:w-12"
-              onerror="this.style.display='none'"
-            />
+          <img
+            src="icon.svg"
+            alt="BurrowScope icon"
+            class="h-12 w-12 shrink-0 asset-img sm:h-14 sm:w-14"
+            onerror="this.style.display='none'"
+          />
           <div>
             <h1 class="flex items-center gap-2 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
               BurrowScope
@@ -59,10 +59,10 @@
           </div>
         </div>
 
-        <div class="flex flex-col gap-2 xl:items-end">
-          <div class="flex flex-wrap items-center justify-start gap-4">
+        <div class="header-partners flex flex-col gap-2 xl:items-end">
+          <div class="header-logo-row flex flex-wrap items-center justify-start gap-3">
             <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
-              <img src="img/birds-canada-logo.svg" alt="Birds Canada" style="height:64px; width:auto; max-width:none;" class="asset-img" onerror="this.style.display='none'" />
+              <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="birds-logo asset-img" onerror="this.style.display='none'" />
             </a>
 
             <a class="logo-link" href="https://naturecounts.ca/nc/default/main.jsp" target="_blank" rel="noopener noreferrer" aria-label="Open NatureCounts">
@@ -77,8 +77,8 @@
               <img src="img/western-logo.svg" alt="Western University" class="h-9 w-auto asset-img sm:h-11" onerror="this.style.display='none'" />
             </a>
 
-            <div class="flex flex-col items-center justify-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1">
-              <span class="text-[9px] font-bold uppercase leading-none tracking-wide text-slate-500" data-i18n="fundingLabel">
+            <div class="funding-strip funding-strip-header">
+              <span class="funding-strip-label" data-i18n="fundingLabel">
                 Funding and support
               </span>
               <a class="logo-link" href="https://www.mitacs.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open Mitacs">
@@ -86,7 +86,6 @@
               </a>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </header>
@@ -104,27 +103,27 @@
           <img
             src="img/bankLogo1.png"
             alt="BurrowScope app logo"
-            class="h-40 w-40 asset-img sm:h-48 sm:w-48 lg:h-56 lg:w-56"
+            class="h-36 w-36 asset-img sm:h-44 sm:w-44 lg:h-48 lg:w-48"
             onerror="this.style.display='none'"
           />
           <div>
             <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="heroEyebrow">Training models for easier wildlife monitoring</p>
-        <div class="mt-1 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-          <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            <span data-i18n="heroTitle">Bank Swallow burrow inspection</span>
-          </h2>
+            <div class="mt-1 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+              <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                <span data-i18n="heroTitle">Bank Swallow burrow inspection</span>
+              </h2>
 
-          <div class="language-switch-inline" aria-label="Language selector">
-            <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
-              <img src="img/canada_flag_mini.svg" alt="Canada flag" class="h-4 w-auto">
-              <span>EN</span>
-            </button>
-            <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
-              <img src="img/quebec_flag_mini.svg" alt="Québec flag" class="h-4 w-auto">
-              <span>FR</span>
-            </button>
-          </div>
-        </div>
+              <div class="language-switch-inline" aria-label="Language selector">
+                <button type="button" class="language-btn active" data-lang-toggle="en" aria-label="Switch to English">
+                  <img src="img/canada_flag_mini.svg" alt="Canada flag" class="h-4 w-auto" />
+                  <span>EN</span>
+                </button>
+                <button type="button" class="language-btn" data-lang-toggle="fr" aria-label="Passer au français québécois">
+                  <img src="img/quebec_flag_mini.svg" alt="Quebec flag" class="h-4 w-auto" />
+                  <span>FR</span>
+                </button>
+              </div>
+            </div>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600" data-i18n="heroCopy">
               Run local ONNX inference on one photo or selected image batches, then review boxes, masks, centroids, and exports.
             </p>
@@ -339,6 +338,17 @@
           </div>
 
           <div class="p-4">
+            <div class="analysis-nav mb-3">
+              <button id="prevAnalysedBtn" type="button" class="secondary-btn" disabled>
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Previous analysed
+              </button>
+              <div id="analysisNavStatus" class="analysis-nav-status">No analysed images in this session.</div>
+              <button id="nextAnalysedBtn" type="button" class="secondary-btn" disabled>
+                Next analysed
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </button>
+            </div>
             <div class="canvas-frame relative flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-inner">
               <canvas id="viewerCanvas" class="block h-auto max-h-[75vh] max-w-full"></canvas>
               <div class="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
@@ -474,7 +484,7 @@
           <p class="text-sm font-extrabold text-slate-900">BurrowScope Initiative</p>
           <p class="mt-1 text-xs text-slate-500" data-i18n="footerCopy">Bank Swallow burrow segmentation and inspection workspace.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-5 opacity-85">
+        <div class="footer-logo-row flex flex-wrap items-center gap-4 opacity-85">
           <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
             <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
           </a>
@@ -487,12 +497,14 @@
           <a class="logo-link" href="https://www.uwo.ca/index.html" target="_blank" rel="noopener noreferrer" aria-label="Open Western University">
             <img src="img/western-logo.svg" alt="Western University" class="h-8 w-auto asset-img" onerror="this.style.display='none'" />
           </a>
-          <span class="footer-funding-label" data-i18n="fundingLabel">Funding and support</span>
-          <a class="logo-link" href="https://www.mitacs.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open Mitacs">
-            <img src="img/Mitacs_logo_blue.webp" alt="Mitacs" class="h-7 w-auto asset-img" onerror="this.style.display='none'" />
-          </a>
+          <div class="funding-strip funding-strip-footer">
+            <span class="funding-strip-label footer-funding-label" data-i18n="fundingLabel">Funding and support</span>
+            <a class="logo-link" href="https://www.mitacs.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open Mitacs">
+              <img src="img/Mitacs_logo_blue.webp" alt="Mitacs" class="h-7 w-auto asset-img" onerror="this.style.display='none'" />
+            </a>
+          </div>
         </div>
-        <p class="text-[12px] font-medium tracking-wide text-slate-500">
+        <p class="footer-creators text-[12px] font-medium tracking-wide text-slate-500">
           <a href="https://lizarazojorge.uk/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">
             Jorge Lizarazo-Borrero
           </a>,
@@ -590,6 +602,6 @@
 
     <script src="js/image-utils.js?v=20260601b"></script>
     <script src="js/yolo-seg-postprocess.js?v=20260601c"></script>
-    <script src="js/app.js?v=20260601i"></script>
+    <script src="js/app.js?v=20260602b"></script>
   </body>
 </html>

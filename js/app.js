@@ -22,11 +22,14 @@ let termsAccepted = false;
 let termsDeclined = false;
 let sessionAnalyses = [];
 let currentAnalysisIndex = -1;
+let overlayHighlightsVisible = true;
+let overlayRevealPercent = 100;
 
 const TRANSLATIONS = {
   en: {
     headerTagline: "Training models for easier wildlife monitoring",
     fundingLabel: "Funding and support",
+    quickEyebrow: "Quick start",
     heroEyebrow: "Training models for easier wildlife monitoring",
     heroTitle: "Bank Swallow burrow inspection",
     heroCopy: "Run local ONNX inference on one photo or selected image batches, then review boxes, masks, centroids, and exports.",
@@ -35,6 +38,56 @@ const TRANSLATIONS = {
     quickStep2: "Run the ONNX model in your browser and keep every image local.",
     quickStep3: "Review post-NMS boxes, masks, centroids, and confidence behaviour.",
     quickStep4: "Export CSV, JSON, or an overlay PNG for local field records.",
+    modelSettingsEyebrow: "Model settings",
+    detectionEngineTitle: "Detection engine",
+    modelFileLabel: "Model file",
+    manualModelUpload: "Load Local .onnx Model File",
+    confidenceThresholdLabel: "Confidence Threshold",
+    iouThresholdLabel: "IoU NMS Threshold",
+    maskThresholdLabel: "Mask Threshold",
+    maxDetectionsLabel: "Maximum detections",
+    exampleImagesEyebrow: "Example images",
+    openMiniGallery: "Open mini gallery",
+    selectedExampleCountSuffix: "selected from 10 example photos.",
+    runSelectedExamples: "Run selected examples",
+    batchResultsTitle: "Batch results",
+    imageColumn: "Image",
+    burrowsColumn: "Burrows",
+    imageInputEyebrow: "Image input",
+    bankPhotoTitle: "Bank photo",
+    uploadBankPhoto: "Upload Bank Photo",
+    noImageLoaded: "No image loaded",
+    chooseImageFirst: "Choose a bank-wall image first.",
+    visualWorkspaceEyebrow: "Visual workspace",
+    perImageDetectionTitle: "Per-image burrow detection",
+    runBurrowDetection: "Run Burrow Detection",
+    instructionsButton: "Instructions",
+    burrowHighlightsOn: "Burrow highlights on",
+    burrowHighlightsOff: "Burrow highlights off",
+    highlightReveal: "Highlight reveal",
+    previousAnalysed: "Previous analysed",
+    nextAnalysed: "Next analysed",
+    noAnalysedImages: "No analysed images in this session.",
+    viewerHelperText: "Masks, boxes, and centroids render here.",
+    detectionsDashboardEyebrow: "Detections dashboard",
+    burrowsDetectedTitle: "Burrows Detected",
+    maskStatusTitle: "Mask status",
+    noPredictionsYet: "No predictions yet.",
+    thresholdDiagnosticsTitle: "Threshold diagnostics",
+    thresholdDiagnosticsSubtitle: "Decode, NMS, and mask checks are tracked independently.",
+    confidenceCutoff: "Confidence cutoff",
+    iouCutoff: "IoU NMS cutoff",
+    maskCutoff: "Mask cutoff",
+    maxDetectionsRow: "Max detections",
+    decodedBoxes: "Decoded boxes",
+    postNmsBoxes: "Post-NMS boxes",
+    maskAvailability: "Mask availability",
+    selectExampleImages: "Select example images",
+    selectedModalSuffix: "selected. Choose several and run them as a batch.",
+    selectAll: "Select all",
+    clearButton: "Clear",
+    runSelected: "Run selected",
+    loadingExamples: "Loading examples...",
     modelUpdateHint: "If there is an updated inference model, upload it here.",
     consoleEyebrow: "Processing log",
     consoleTitle: "Session",
@@ -52,6 +105,7 @@ const TRANSLATIONS = {
   fr: {
     headerTagline: "Entraîner des modèles pour faciliter le suivi de la faune",
     fundingLabel: "Financement et soutien",
+    quickEyebrow: "Démarrage rapide",
     heroEyebrow: "Entraîner des modèles pour faciliter le suivi de la faune",
     heroTitle: "Inspection des terriers d'hirondelles de rivage",
     heroCopy: "Lancez l'inférence ONNX locale sur une photo ou sur des lots d'images sélectionnées, puis révisez les boîtes, les masques, les centroïdes et les exports.",
@@ -60,6 +114,56 @@ const TRANSLATIONS = {
     quickStep2: "Exécutez le modèle ONNX dans votre navigateur et gardez chaque image en local.",
     quickStep3: "Révisez les boîtes post-NMS, les masques, les centroïdes et le comportement des seuils de confiance.",
     quickStep4: "Exportez un CSV, un JSON ou un PNG de superposition pour vos dossiers de terrain.",
+    modelSettingsEyebrow: "Paramètres du modèle",
+    detectionEngineTitle: "Moteur de détection",
+    modelFileLabel: "Fichier du modèle",
+    manualModelUpload: "Charger un fichier local .onnx",
+    confidenceThresholdLabel: "Seuil de confiance",
+    iouThresholdLabel: "Seuil IoU NMS",
+    maskThresholdLabel: "Seuil du masque",
+    maxDetectionsLabel: "Nombre maximal de détections",
+    exampleImagesEyebrow: "Images d'exemple",
+    openMiniGallery: "Ouvrir la mini-galerie",
+    selectedExampleCountSuffix: "sélectionnées parmi 10 photos d'exemple.",
+    runSelectedExamples: "Lancer les exemples sélectionnés",
+    batchResultsTitle: "Résultats du lot",
+    imageColumn: "Image",
+    burrowsColumn: "Terriers",
+    imageInputEyebrow: "Entrée image",
+    bankPhotoTitle: "Photo de berge",
+    uploadBankPhoto: "Importer une photo de berge",
+    noImageLoaded: "Aucune image chargée",
+    chooseImageFirst: "Choisissez d'abord une image de paroi de berge.",
+    visualWorkspaceEyebrow: "Espace visuel",
+    perImageDetectionTitle: "Détection de terriers par image",
+    runBurrowDetection: "Lancer la détection des terriers",
+    instructionsButton: "Instructions",
+    burrowHighlightsOn: "Surlignage des terriers activé",
+    burrowHighlightsOff: "Surlignage des terriers désactivé",
+    highlightReveal: "Révélation du surlignage",
+    previousAnalysed: "Image analysée précédente",
+    nextAnalysed: "Image analysée suivante",
+    noAnalysedImages: "Aucune image analysée dans cette session.",
+    viewerHelperText: "Les masques, boîtes et centroïdes s'affichent ici.",
+    detectionsDashboardEyebrow: "Tableau des détections",
+    burrowsDetectedTitle: "Terriers détectés",
+    maskStatusTitle: "État des masques",
+    noPredictionsYet: "Aucune prédiction pour le moment.",
+    thresholdDiagnosticsTitle: "Diagnostic des seuils",
+    thresholdDiagnosticsSubtitle: "Le décodage, la NMS et les vérifications de masque sont suivis séparément.",
+    confidenceCutoff: "Seuil de confiance",
+    iouCutoff: "Seuil IoU NMS",
+    maskCutoff: "Seuil du masque",
+    maxDetectionsRow: "Détections max",
+    decodedBoxes: "Boîtes décodées",
+    postNmsBoxes: "Boîtes post-NMS",
+    maskAvailability: "Disponibilité des masques",
+    selectExampleImages: "Sélectionner des images d'exemple",
+    selectedModalSuffix: "sélectionnées. Choisissez-en plusieurs et lancez-les en lot.",
+    selectAll: "Tout sélectionner",
+    clearButton: "Effacer",
+    runSelected: "Lancer la sélection",
+    loadingExamples: "Chargement des exemples...",
     modelUpdateHint: "S'il existe une mise à jour du modèle d'inférence, téléversez-la ici.",
     consoleEyebrow: "Journal de traitement",
     consoleTitle: "Session",
@@ -76,6 +180,10 @@ const TRANSLATIONS = {
   },
 };
 
+function t(key) {
+  return TRANSLATIONS[activeLanguage]?.[key] || TRANSLATIONS.en[key] || key;
+}
+
 function qs(id) {
   return document.getElementById(id);
 }
@@ -91,6 +199,17 @@ function setLanguage(lang) {
   document.querySelectorAll("[data-lang-toggle]").forEach((button) => {
     button.classList.toggle("active", button.dataset.langToggle === activeLanguage);
   });
+  if (!currentImage && qs("imageName")?.dataset.i18n === "noImageLoaded") {
+    qs("imageName").innerText = t("noImageLoaded");
+  }
+  if (!currentImage && qs("imageMeta")?.dataset.i18n === "chooseImageFirst") {
+    qs("imageMeta").innerText = t("chooseImageFirst");
+  }
+  if (qs("runBtnText") && qs("runBtnText").innerText !== "Running..." && qs("runBtnText").innerText !== "Exécution...") {
+    qs("runBtnText").innerText = t("runBurrowDetection");
+  }
+  updateOverlayControls();
+  renderSampleGrid();
 }
 
 function openTermsModal() {
@@ -144,6 +263,48 @@ function declineTerms() {
 function setTextIfPresent(id, text) {
   const el = qs(id);
   if (el) el.innerText = text;
+}
+
+function getViewerCanvases() {
+  return {
+    base: qs("viewerCanvas"),
+    overlay: qs("overlayCanvas"),
+  };
+}
+
+function updateOverlayControls() {
+  const slider = qs("overlayRevealSlider");
+  const button = qs("toggleOverlayBtn");
+  const divider = qs("overlayDivider");
+  const hasImage = Boolean(currentImage);
+  const hasDetections = currentDetections.length > 0;
+
+  if (slider) {
+    slider.value = String(overlayRevealPercent);
+    slider.disabled = !hasImage || !hasDetections || !overlayHighlightsVisible;
+  }
+
+  if (button) {
+    button.disabled = !hasImage || !hasDetections;
+    button.innerHTML = overlayHighlightsVisible
+      ? `<i data-lucide="layers-3" class="h-4 w-4"></i> ${escapeHtml(t("burrowHighlightsOn"))}`
+      : `<i data-lucide="image" class="h-4 w-4"></i> ${escapeHtml(t("burrowHighlightsOff"))}`;
+  }
+
+  const overlayCanvas = qs("overlayCanvas");
+  if (overlayCanvas) {
+    overlayCanvas.style.opacity = overlayHighlightsVisible ? "1" : "0";
+    overlayCanvas.style.clipPath = overlayHighlightsVisible
+      ? `inset(0 ${Math.max(0, 100 - overlayRevealPercent)}% 0 0)`
+      : "inset(0 100% 0 0)";
+  }
+
+  if (divider) {
+    divider.classList.toggle("hidden", !overlayHighlightsVisible || !hasImage || !hasDetections);
+    divider.style.left = `${overlayRevealPercent}%`;
+  }
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function setHiddenIfPresent(id, hidden) {
@@ -424,14 +585,16 @@ function updateAnalysisNavigation() {
   if (nextBtn) nextBtn.disabled = total <= 1 || currentAnalysisIndex < 0 || currentAnalysisIndex >= total - 1;
   if (status) {
     status.innerText = total > 0
-      ? `Analysed image ${currentAnalysisIndex + 1} of ${total}: ${sessionAnalyses[currentAnalysisIndex]?.name || "Unnamed image"}`
-      : "No analysed images in this session.";
+      ? (activeLanguage === "fr"
+        ? `Image analysée ${currentAnalysisIndex + 1} sur ${total} : ${sessionAnalyses[currentAnalysisIndex]?.name || "Image sans nom"}`
+        : `Analysed image ${currentAnalysisIndex + 1} of ${total}: ${sessionAnalyses[currentAnalysisIndex]?.name || "Unnamed image"}`)
+      : t("noAnalysedImages");
   }
 }
 
 function drawStoredDetections() {
   drawBaseImage();
-  const canvas = qs("viewerCanvas");
+  const canvas = qs("overlayCanvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const display = {
     width: canvas.width,
@@ -453,6 +616,7 @@ function drawStoredDetections() {
     }
   }
   drawBoxesFallback(ctx, currentDetections, display);
+  updateOverlayControls();
 }
 
 function renderLoadedAnalysis() {
@@ -464,6 +628,7 @@ function renderLoadedAnalysis() {
   renderTable();
   updateAnalysisNavigation();
   drawStoredDetections();
+  updateOverlayControls();
 }
 
 function loadImageFromSource(src) {
@@ -529,12 +694,14 @@ function statusCounts(detections, reader) {
 }
 
 function resetDetectionDiagnostics() {
-  setTextIfPresent("diagnosticDecodedBoxes", "Awaiting inference");
+  setTextIfPresent("diagnosticDecodedBoxes", activeLanguage === "fr" ? "En attente d'inférence" : "Awaiting inference");
   setTextIfPresent("diagnosticPostNmsBoxes", "0");
-  setTextIfPresent("diagnosticMaskAvailability", "Awaiting inference");
+  setTextIfPresent("diagnosticMaskAvailability", activeLanguage === "fr" ? "En attente d'inférence" : "Awaiting inference");
   setTextIfPresent(
     "maskStatusText",
-    "Counts report decoded post-NMS boxes; mask availability can be reported separately.",
+    activeLanguage === "fr"
+      ? "Le comptage utilise les boîtes décodées post-NMS; la disponibilité des masques est indiquée séparément."
+      : "Counts report decoded post-NMS boxes; mask availability can be reported separately.",
   );
   setHiddenIfPresent("maskUnavailableWarning", true);
 }
@@ -551,8 +718,12 @@ function updateDetectionDiagnostics(detections) {
   setTextIfPresent(
     "maskStatusText",
     count > 0
-      ? `Counts use ${count} post-NMS boxes. Masks available for ${masksAvailable}/${count} detections.`
-      : "Counts report decoded post-NMS boxes; mask availability can be reported separately.",
+      ? (activeLanguage === "fr"
+        ? `Le comptage utilise ${count} boîtes post-NMS. Masques disponibles pour ${masksAvailable}/${count} détections.`
+        : `Counts use ${count} post-NMS boxes. Masks available for ${masksAvailable}/${count} detections.`)
+      : (activeLanguage === "fr"
+        ? "Le comptage utilise les boîtes décodées post-NMS; la disponibilité des masques est indiquée séparément."
+        : "Counts report decoded post-NMS boxes; mask availability can be reported separately."),
   );
   setHiddenIfPresent("maskUnavailableWarning", count === 0 || masksAvailable === count);
 }
@@ -625,6 +796,8 @@ function setCurrentImage(img, name) {
   currentImageName = name;
   qs("imageName").innerText = name;
   qs("imageMeta").innerText = `${img.naturalWidth} x ${img.naturalHeight}px`;
+  overlayHighlightsVisible = true;
+  overlayRevealPercent = 100;
   drawBaseImage();
   qs("runBtn").disabled = !session || batchRunning;
   qs("exportCsvBtn").disabled = true;
@@ -636,6 +809,7 @@ function setCurrentImage(img, name) {
   resetDetectionDiagnostics();
   updateAnalysisNavigation();
   renderTable();
+  updateOverlayControls();
   logLine(`Image loaded: ${name}`);
 }
 
@@ -649,7 +823,7 @@ async function loadSampleImages() {
     sampleManifest = await response.json();
     renderSampleGrid();
   } catch (err) {
-    grid.innerHTML = `<p class="col-span-2 text-sm text-slate-500">Example images not available.</p>`;
+    grid.innerHTML = `<p class="col-span-2 text-sm text-slate-500">${activeLanguage === "fr" ? "Images d'exemple non disponibles." : "Example images not available."}</p>`;
     logLine(`Sample images not loaded: ${err.message}`);
   }
 }
@@ -665,7 +839,7 @@ function renderSampleGrid() {
     button.type = "button";
     button.className = `sample-card ${selected ? "selected" : ""}`;
     button.innerHTML = `
-      <span class="sample-check">${selected ? "Selected" : "Select"}</span>
+      <span class="sample-check">${selected ? (activeLanguage === "fr" ? "Choisie" : "Selected") : (activeLanguage === "fr" ? "Choisir" : "Select")}</span>
       <img src="${sample.thumb || sample.file}" alt="${sample.id}" loading="lazy" />
       <span class="sample-title">${sample.id.replace("_", " ")}</span>
     `;
@@ -840,17 +1014,27 @@ function getDisplaySize(img) {
 
 function drawBaseImage() {
   if (!currentImage) return;
-  const canvas = qs("viewerCanvas");
+  const { base, overlay } = getViewerCanvases();
   const display = getDisplaySize(currentImage);
-  canvas.width = display.width;
-  canvas.height = display.height;
-  canvas.style.backgroundImage = `url("${String(currentImage.src || "").replaceAll('"', '\\"')}")`;
-  canvas.style.backgroundPosition = "center";
-  canvas.style.backgroundRepeat = "no-repeat";
-  canvas.style.backgroundSize = "100% 100%";
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+  [base, overlay].forEach((canvas) => {
+    if (!canvas) return;
+    canvas.width = display.width;
+    canvas.height = display.height;
+    canvas.style.width = `${display.width}px`;
+    canvas.style.height = `${display.height}px`;
+  });
+  base.style.backgroundImage = `url("${String(currentImage.src || "").replaceAll('"', '\\"')}")`;
+  base.style.backgroundPosition = "center";
+  base.style.backgroundRepeat = "no-repeat";
+  base.style.backgroundSize = "100% 100%";
+  const ctx = base.getContext("2d", { willReadFrequently: true });
+  ctx.clearRect(0, 0, base.width, base.height);
+  ctx.drawImage(currentImage, 0, 0, base.width, base.height);
+  if (overlay) {
+    const overlayCtx = overlay.getContext("2d", { willReadFrequently: true });
+    overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+  }
+  updateOverlayControls();
 }
 
 function displayBox(box, display) {
@@ -893,7 +1077,7 @@ async function runInference() {
   }
   if (!session || !currentImage) return;
   qs("runBtn").disabled = true;
-  qs("runBtnText").innerText = "Running...";
+  qs("runBtnText").innerText = activeLanguage === "fr" ? "Exécution..." : "Running...";
   setStatus("Running inference locally...", "neutral");
 
   try {
@@ -905,7 +1089,7 @@ async function runInference() {
     console.error(err);
   } finally {
     qs("runBtn").disabled = !termsAccepted || !session || !currentImage;
-    qs("runBtnText").innerText = "Run Burrow Detection";
+    qs("runBtnText").innerText = t("runBurrowDetection");
   }
 }
 
@@ -983,7 +1167,7 @@ function decodeAndRender({ diagnostics = false } = {}) {
   currentDetections = readDecodedDetections(window.BurrowYoloSeg.decodeYoloSeg(lastOutputs, decodeOptions));
 
   drawBaseImage();
-  const canvas = qs("viewerCanvas");
+  const canvas = qs("overlayCanvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const display = {
     width: canvas.width,
@@ -1018,6 +1202,7 @@ function decodeAndRender({ diagnostics = false } = {}) {
   renderTable();
   storeCurrentAnalysis();
   updateAnalysisNavigation();
+  updateOverlayControls();
   if (diagnostics) {
     logPostProcessSummary(currentDetections, decodeOptions);
     logThresholdDiagnostics();
@@ -1049,7 +1234,7 @@ function renderTable() {
     body.appendChild(tr);
   }
   if (!currentDetections.length) {
-    body.innerHTML = `<tr><td colspan="5" class="px-3 py-8 text-center text-slate-400">No predictions yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5" class="px-3 py-8 text-center text-slate-400">${escapeHtml(t("noPredictionsYet"))}</td></tr>`;
   }
 }
 
@@ -1212,9 +1397,18 @@ function exportJson() {
 }
 
 function exportPng() {
-  const canvas = qs("viewerCanvas");
+  const baseCanvas = qs("viewerCanvas");
+  const overlayCanvas = qs("overlayCanvas");
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = baseCanvas.width;
+  exportCanvas.height = baseCanvas.height;
+  const exportCtx = exportCanvas.getContext("2d");
+  exportCtx.drawImage(baseCanvas, 0, 0);
+  if (currentDetections.length && overlayCanvas) {
+    exportCtx.drawImage(overlayCanvas, 0, 0);
+  }
   const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
+  a.href = exportCanvas.toDataURL("image/png");
   a.download = `${currentImageName || "burrows"}_overlay.png`;
   a.click();
 }
@@ -1635,6 +1829,14 @@ async function initApp() {
     if (event.key === "Escape") closeSampleModal();
   });
   qs("runBtn").addEventListener("click", runInference);
+  qs("toggleOverlayBtn")?.addEventListener("click", () => {
+    overlayHighlightsVisible = !overlayHighlightsVisible;
+    updateOverlayControls();
+  });
+  qs("overlayRevealSlider")?.addEventListener("input", (event) => {
+    overlayRevealPercent = Number(event.target.value);
+    updateOverlayControls();
+  });
   qs("prevAnalysedBtn")?.addEventListener("click", () => {
     if (currentAnalysisIndex > 0) showAnalysisAt(currentAnalysisIndex - 1).catch((err) => logLine(`Could not open previous analysed image: ${err.message}`));
   });

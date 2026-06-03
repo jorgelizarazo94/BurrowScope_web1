@@ -20,7 +20,7 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icon.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="css/style.css?v=20260602c" />
+    <link rel="stylesheet" href="css/style.css?v=20260603a" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0/dist/ort.min.js"></script>
@@ -49,13 +49,13 @@
             onerror="this.style.display='none'"
           />
           <div>
-            <h1 class="flex items-center gap-2 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
+            <h1 class="flex items-center gap-2 text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
               BurrowScope
               <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-700">
                 ONNX
               </span>
             </h1>
-            <p class="text-[11px] font-medium text-slate-500 sm:text-xs" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
+            <p class="text-[10px] font-medium text-slate-500 sm:text-[11px]" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
           </div>
         </div>
 
@@ -137,7 +137,7 @@
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Quick start</p>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="quickEyebrow">Quick start</p>
               <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="quickTitle">Visual inspection workflow</h2>
             </div>
             <div class="rounded-full bg-blue-50 p-2 text-blue-600">
@@ -168,8 +168,8 @@
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-center justify-between gap-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Model settings</p>
-              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Detection engine</h2>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="modelSettingsEyebrow">Model settings</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="detectionEngineTitle">Detection engine</h2>
             </div>
             <span
               id="validationBadge"
@@ -180,7 +180,7 @@
           </div>
 
           <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Model file</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-500" data-i18n="modelFileLabel">Model file</p>
             <p id="modelName" class="mt-1 break-all font-mono text-[11px] text-slate-700">
               bank_swallow_burrow_yolo11s_seg_production.onnx
             </p>
@@ -196,14 +196,14 @@
             <input id="onnxFileInput" type="file" accept=".onnx" class="hidden" />
             <button id="manualModelUpload" type="button" class="secondary-btn w-full">
               <i data-lucide="upload" class="h-4 w-4"></i>
-              Load Local .onnx Model File
+              <span data-i18n="manualModelUpload">Load Local .onnx Model File</span>
             </button>
           </div>
 
           <div class="mt-5 space-y-4">
             <label class="block">
               <span class="flex items-center justify-between text-sm font-bold text-slate-700">
-                Confidence Threshold
+                <span data-i18n="confidenceThresholdLabel">Confidence Threshold</span>
                 <span id="confValue" class="font-mono text-blue-700">0.35</span>
               </span>
               <input id="confidenceSlider" type="range" min="0.05" max="0.95" step="0.01" value="0.35" class="mt-2 w-full accent-blue-600" />
@@ -211,7 +211,7 @@
 
             <label class="block">
               <span class="flex items-center justify-between text-sm font-bold text-slate-700">
-                IoU NMS Threshold
+                <span data-i18n="iouThresholdLabel">IoU NMS Threshold</span>
                 <span id="iouValue" class="font-mono text-blue-700">0.45</span>
               </span>
               <input id="iouSlider" type="range" min="0.10" max="0.85" step="0.01" value="0.45" class="mt-2 w-full accent-blue-600" />
@@ -219,14 +219,14 @@
 
             <label class="block">
               <span class="flex items-center justify-between text-sm font-bold text-slate-700">
-                Mask Threshold
+                <span data-i18n="maskThresholdLabel">Mask Threshold</span>
                 <span id="maskValue" class="font-mono text-blue-700">0.55</span>
               </span>
               <input id="maskSlider" type="range" min="0.05" max="0.95" step="0.05" value="0.55" class="mt-2 w-full accent-blue-600" />
             </label>
 
             <label class="block text-sm font-bold text-slate-700">
-              Maximum detections
+              <span data-i18n="maxDetectionsLabel">Maximum detections</span>
               <input
                 id="maxDetections"
                 type="number"
@@ -242,28 +242,28 @@
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Example images</p>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="exampleImagesEyebrow">Example images</p>
               <h2 class="mt-1 text-lg font-extrabold text-slate-900">Batch 002 random</h2>
             </div>
             <i data-lucide="images" class="h-6 w-6 text-blue-600"></i>
           </div>
           <button id="openSamplesBtn" type="button" class="mt-4 flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-blue-400 hover:bg-blue-50">
             <span>
-              <span class="block text-sm font-extrabold text-slate-900">Open mini gallery</span>
+              <span class="block text-sm font-extrabold text-slate-900" data-i18n="openMiniGallery">Open mini gallery</span>
               <span class="mt-1 block text-xs text-slate-500">
-                <span id="selectedSampleCount">0</span> selected from 10 example photos.
+                <span id="selectedSampleCount">0</span> <span data-i18n="selectedExampleCountSuffix">selected from 10 example photos.</span>
               </span>
             </span>
             <i data-lucide="image-plus" class="h-6 w-6 text-blue-600"></i>
           </button>
           <button id="runSelectedSamplesBtn" type="button" disabled class="primary-btn mt-3 w-full">
             <i data-lucide="play-circle" class="h-4 w-4"></i>
-            Run selected examples
+            <span data-i18n="runSelectedExamples">Run selected examples</span>
           </button>
 
           <div id="batchResultsPanel" class="mt-4 hidden rounded-xl border border-slate-200 bg-slate-50">
             <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
-              <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Batch results</p>
+              <p class="text-xs font-bold uppercase tracking-wide text-slate-500" data-i18n="batchResultsTitle">Batch results</p>
               <span class="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-extrabold text-white">
                 <span id="batchTotalCount">0</span> burrows
               </span>
@@ -272,8 +272,8 @@
               <table class="min-w-full divide-y divide-slate-200 text-xs">
                 <thead class="sticky top-0 bg-slate-100 text-left uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th class="px-3 py-2">Image</th>
-                    <th class="px-3 py-2 text-right">Burrows</th>
+                    <th class="px-3 py-2" data-i18n="imageColumn">Image</th>
+                    <th class="px-3 py-2 text-right" data-i18n="burrowsColumn">Burrows</th>
                   </tr>
                 </thead>
                 <tbody id="batchResultsBody" class="divide-y divide-slate-200"></tbody>
@@ -285,8 +285,8 @@
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Image input</p>
-              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Bank photo</h2>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="imageInputEyebrow">Image input</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="bankPhotoTitle">Bank photo</h2>
             </div>
             <i data-lucide="image" class="h-6 w-6 text-blue-600"></i>
           </div>
@@ -297,14 +297,14 @@
             class="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
           >
             <i data-lucide="upload-cloud" class="h-9 w-9 text-blue-600"></i>
-            <span class="mt-2 text-sm font-extrabold text-slate-900">Upload Bank Photo</span>
+            <span class="mt-2 text-sm font-extrabold text-slate-900" data-i18n="uploadBankPhoto">Upload Bank Photo</span>
             <span class="mt-1 text-xs text-slate-500">JPG, PNG, or WebP</span>
           </label>
           <input id="imageInput" type="file" accept="image/*" class="hidden" />
 
           <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <p id="imageName" class="text-sm font-bold text-slate-800">No image loaded</p>
-            <p id="imageMeta" class="mt-1 text-xs text-slate-500">Choose a bank-wall image first.</p>
+            <p id="imageName" class="text-sm font-bold text-slate-800" data-i18n="noImageLoaded">No image loaded</p>
+            <p id="imageMeta" class="mt-1 text-xs text-slate-500" data-i18n="chooseImageFirst">Choose a bank-wall image first.</p>
           </div>
         </section>
       </aside>
@@ -313,17 +313,17 @@
         <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
           <div class="flex flex-col gap-4 border-b border-slate-200 p-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Visual workspace</p>
-              <h2 class="mt-1 text-xl font-extrabold text-slate-900">Per-image burrow detection</h2>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="visualWorkspaceEyebrow">Visual workspace</p>
+              <h2 class="mt-1 text-xl font-extrabold text-slate-900" data-i18n="perImageDetectionTitle">Per-image burrow detection</h2>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <button id="runBtn" type="button" disabled class="primary-btn">
                 <i data-lucide="play" class="h-4 w-4"></i>
-                <span id="runBtnText">Run Burrow Detection</span>
+                <span id="runBtnText" data-i18n="runBurrowDetection">Run Burrow Detection</span>
               </button>
               <button id="instructionsBtn" type="button" class="danger-btn" title="Export technical PDF instructions">
                 <i data-lucide="file-text" class="h-4 w-4"></i>
-                Instructions
+                <span data-i18n="instructionsButton">Instructions</span>
               </button>
               <button id="exportCsvBtn" type="button" disabled class="icon-btn" title="Export CSV">
                 <i data-lucide="file-spreadsheet" class="h-4 w-4"></i>
@@ -338,21 +338,37 @@
           </div>
 
           <div class="p-4">
+            <div class="viewer-compare-toolbar mb-3">
+              <button id="toggleOverlayBtn" type="button" class="secondary-btn" disabled>
+                <i data-lucide="layers-3" class="h-4 w-4"></i>
+                <span data-i18n="burrowHighlightsOn">Burrow highlights on</span>
+              </button>
+              <div class="viewer-compare-slider-wrap">
+                <label for="overlayRevealSlider" class="viewer-compare-label" data-i18n="highlightReveal">Highlight reveal</label>
+                <input id="overlayRevealSlider" type="range" min="0" max="100" step="1" value="100" disabled />
+              </div>
+            </div>
             <div class="analysis-nav mb-3">
               <button id="prevAnalysedBtn" type="button" class="secondary-btn" disabled>
                 <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                Previous analysed
+                <span data-i18n="previousAnalysed">Previous analysed</span>
               </button>
-              <div id="analysisNavStatus" class="analysis-nav-status">No analysed images in this session.</div>
+              <div id="analysisNavStatus" class="analysis-nav-status" data-i18n="noAnalysedImages">No analysed images in this session.</div>
               <button id="nextAnalysedBtn" type="button" class="secondary-btn" disabled>
-                Next analysed
+                <span data-i18n="nextAnalysed">Next analysed</span>
                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
               </button>
             </div>
             <div class="canvas-frame relative flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-inner">
-              <canvas id="viewerCanvas" class="block h-auto max-h-[75vh] max-w-full"></canvas>
+              <div class="compare-stage">
+                <canvas id="viewerCanvas" class="compare-canvas block h-auto max-h-[75vh] max-w-full"></canvas>
+                <canvas id="overlayCanvas" class="compare-canvas compare-overlay-canvas"></canvas>
+                <div id="overlayDivider" class="compare-divider hidden" aria-hidden="true">
+                  <span class="compare-divider-handle"></span>
+                </div>
+              </div>
               <div class="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
-                Masks, boxes, and centroids render here.
+                <span data-i18n="viewerHelperText">Masks, boxes, and centroids render here.</span>
               </div>
             </div>
           </div>
@@ -362,8 +378,8 @@
           <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 p-4">
               <div>
-                <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Detections dashboard</p>
-                <h2 class="mt-1 text-lg font-extrabold text-slate-900">Burrows Detected</h2>
+                <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="detectionsDashboardEyebrow">Detections dashboard</p>
+                <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="burrowsDetectedTitle">Burrows Detected</h2>
               </div>
               <span
                 id="postNmsCountBadge"
@@ -385,7 +401,7 @@
               <div class="flex items-start gap-3">
                 <i data-lucide="shield-alert" class="mt-0.5 h-4 w-4 text-amber-600"></i>
                 <div>
-                  <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Mask status</p>
+                  <p class="text-xs font-bold uppercase tracking-wide text-slate-500" data-i18n="maskStatusTitle">Mask status</p>
                   <p id="maskStatusText" class="mt-1 text-xs text-slate-600">
                     Counts report decoded post-NMS boxes; mask availability can be reported separately.
                   </p>
@@ -408,7 +424,7 @@
                 </thead>
                 <tbody id="detectionsBody" class="divide-y divide-slate-100">
                   <tr>
-                    <td colspan="5" class="px-3 py-8 text-center text-slate-400">No predictions yet.</td>
+                    <td colspan="5" class="px-3 py-8 text-center text-slate-400" data-i18n="noPredictionsYet">No predictions yet.</td>
                   </tr>
                 </tbody>
               </table>
@@ -416,8 +432,8 @@
             <div id="thresholdDiagnostics" class="threshold-diagnostics">
               <div class="flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Threshold diagnostics</p>
-                  <p class="mt-1 text-xs text-slate-500">Decode, NMS, and mask checks are tracked independently.</p>
+                  <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="thresholdDiagnosticsTitle">Threshold diagnostics</p>
+                  <p class="mt-1 text-xs text-slate-500" data-i18n="thresholdDiagnosticsSubtitle">Decode, NMS, and mask checks are tracked independently.</p>
                 </div>
                 <i data-lucide="sliders-horizontal" class="h-5 w-5 text-blue-600"></i>
               </div>
@@ -425,31 +441,31 @@
                 <table class="diagnostic-table">
                   <tbody>
                     <tr>
-                      <th scope="row">Confidence cutoff</th>
+                      <th scope="row" data-i18n="confidenceCutoff">Confidence cutoff</th>
                       <td id="diagnosticConfidenceThreshold" data-threshold-source="confidenceSlider">0.35</td>
                     </tr>
                     <tr>
-                      <th scope="row">IoU NMS cutoff</th>
+                      <th scope="row" data-i18n="iouCutoff">IoU NMS cutoff</th>
                       <td id="diagnosticIouThreshold" data-threshold-source="iouSlider">0.45</td>
                     </tr>
                     <tr>
-                      <th scope="row">Mask cutoff</th>
+                      <th scope="row" data-i18n="maskCutoff">Mask cutoff</th>
                       <td id="diagnosticMaskThreshold" data-threshold-source="maskSlider">0.55</td>
                     </tr>
                     <tr>
-                      <th scope="row">Max detections</th>
+                      <th scope="row" data-i18n="maxDetectionsRow">Max detections</th>
                       <td id="diagnosticMaxDetections" data-threshold-source="maxDetections">500</td>
                     </tr>
                     <tr>
-                      <th scope="row">Decoded boxes</th>
+                      <th scope="row" data-i18n="decodedBoxes">Decoded boxes</th>
                       <td id="diagnosticDecodedBoxes">Awaiting inference</td>
                     </tr>
                     <tr>
-                      <th scope="row">Post-NMS boxes</th>
+                      <th scope="row" data-i18n="postNmsBoxes">Post-NMS boxes</th>
                       <td id="diagnosticPostNmsBoxes" data-count-source="countValue">0</td>
                     </tr>
                     <tr>
-                      <th scope="row">Mask availability</th>
+                      <th scope="row" data-i18n="maskAvailability">Mask availability</th>
                       <td id="diagnosticMaskAvailability">Awaiting inference</td>
                     </tr>
                   </tbody>
@@ -467,9 +483,9 @@
         <div class="neural-console-watermark" aria-hidden="true">
           <span></span><span></span><span></span><span></span>
         </div>
-        <div class="relative z-10 flex items-center justify-between gap-3 border-b border-emerald-400/20 px-4 py-3">
+        <div class="neural-console-header relative z-10 flex items-center justify-between gap-3 px-4 py-3">
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300" data-i18n="consoleEyebrow">Processing log</p>
+            <p class="neural-console-eyebrow" data-i18n="consoleEyebrow">Processing log</p>
             <h2 class="terminal-title" data-i18n="consoleTitle">Session</h2>
           </div>
           <span class="terminal-led">ONNX LOCAL</span>
@@ -577,17 +593,17 @@
         <div class="flex items-center justify-between gap-4 border-b border-slate-200 p-4">
           <div>
             <p class="text-xs font-bold uppercase tracking-wide text-blue-600">Batch 002 random</p>
-            <h2 class="text-xl font-extrabold text-slate-900">Select example images</h2>
+            <h2 class="text-xl font-extrabold text-slate-900" data-i18n="selectExampleImages">Select example images</h2>
             <p class="mt-1 text-xs text-slate-500">
-              <span id="selectedSampleCountModal">0</span> selected. Choose several and run them as a batch.
+              <span id="selectedSampleCountModal">0</span> <span data-i18n="selectedModalSuffix">selected. Choose several and run them as a batch.</span>
             </p>
           </div>
           <div class="flex flex-wrap items-center justify-end gap-2">
-            <button id="selectAllSamplesBtn" type="button" class="secondary-btn">Select all</button>
-            <button id="clearSamplesBtn" type="button" class="secondary-btn">Clear</button>
+            <button id="selectAllSamplesBtn" type="button" class="secondary-btn" data-i18n="selectAll">Select all</button>
+            <button id="clearSamplesBtn" type="button" class="secondary-btn" data-i18n="clearButton">Clear</button>
             <button id="runSelectedSamplesModalBtn" type="button" disabled class="primary-btn">
               <i data-lucide="play-circle" class="h-4 w-4"></i>
-              Run selected
+              <span data-i18n="runSelected">Run selected</span>
             </button>
             <button id="closeSamplesBtn" type="button" class="icon-btn" aria-label="Close example images">
               <i data-lucide="x" class="h-4 w-4"></i>
@@ -595,13 +611,13 @@
           </div>
         </div>
         <div id="sampleGrid" class="grid gap-3 overflow-y-auto p-4 sm:grid-cols-2 lg:grid-cols-3">
-          <p class="text-sm text-slate-500">Loading examples...</p>
+          <p class="text-sm text-slate-500" data-i18n="loadingExamples">Loading examples...</p>
         </div>
       </div>
     </div>
 
     <script src="js/image-utils.js?v=20260601b"></script>
     <script src="js/yolo-seg-postprocess.js?v=20260601c"></script>
-    <script src="js/app.js?v=20260602c"></script>
+    <script src="js/app.js?v=20260603a"></script>
   </body>
 </html>

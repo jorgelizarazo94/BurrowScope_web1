@@ -24,6 +24,8 @@ let sessionAnalyses = [];
 let currentAnalysisIndex = -1;
 let overlayHighlightsVisible = true;
 let overlayRevealPercent = 100;
+let localUploadQueue = [];
+let localUploadSource = "files";
 
 const TRANSLATIONS = {
   en: {
@@ -56,6 +58,8 @@ const TRANSLATIONS = {
     imageInputEyebrow: "Image input",
     bankPhotoTitle: "Bank photo",
     uploadBankPhoto: "Upload Bank Photo",
+    imageFormatsHint: "JPG, PNG, or WebP. You can select several with Ctrl/Cmd.",
+    selectFolderButton: "Select Folder",
     noImageLoaded: "No image loaded",
     chooseImageFirst: "Choose a bank-wall image first.",
     visualWorkspaceEyebrow: "Visual workspace",
@@ -132,6 +136,8 @@ const TRANSLATIONS = {
     imageInputEyebrow: "Entrée image",
     bankPhotoTitle: "Photo de berge",
     uploadBankPhoto: "Importer une photo de berge",
+    imageFormatsHint: "JPG, PNG ou WebP. Vous pouvez en choisir plusieurs avec Ctrl/Cmd.",
+    selectFolderButton: "Sélectionner un dossier",
     noImageLoaded: "Aucune image chargée",
     chooseImageFirst: "Choisissez d'abord une image de paroi de berge.",
     visualWorkspaceEyebrow: "Espace visuel",
@@ -229,11 +235,15 @@ function closeTermsModal() {
 function refreshUsageGate() {
   const locked = !termsAccepted;
   const imageInput = qs("imageInput");
+  const folderInput = qs("folderInput");
   const imageLabel = qs("imageInputLabel");
   const runButton = qs("runBtn");
   const manualButton = qs("manualModelUpload");
+  const folderButton = qs("folderSelectBtn");
   if (imageInput) imageInput.disabled = locked || !session;
+  if (folderInput) folderInput.disabled = locked || !session;
   if (manualButton) manualButton.disabled = locked;
+  if (folderButton) folderButton.disabled = locked || !session || batchRunning;
   if (imageLabel) {
     imageLabel.classList.toggle("opacity-50", locked || !session);
     imageLabel.classList.toggle("cursor-not-allowed", locked || !session);
@@ -785,10 +795,45 @@ async function handleImageUpload(event) {
     openTermsModal();
     return;
   }
-  const file = event.target.files[0];
-  if (!file) return;
-  const { img } = await window.BurrowImageUtils.readImageFile(file);
-  setCurrentImage(img, file.name);
+  await prepareLocalUploadQueue(event.target.files, "files");
+}
+
+async function handleFolderUpload(event) {
+  if (!termsAccepted) {
+    openTermsModal();
+    return;
+  }
+  await prepareLocalUploadQueue(event.target.files, "folder");
+}
+
+function isAcceptedImageFile(file) {
+  if (!file) return false;
+  if (file.type?.startsWith("image/")) return true;
+  return /\.(jpg|jpeg|png|webp)$/i.test(file.name || "");
+}
+
+async function prepareLocalUploadQueue(fileList, source) {
+  const files = Array.from(fileList || []).filter(isAcceptedImageFile);
+  if (!files.length) return;
+  localUploadQueue = files;
+  localUploadSource = source;
+  const { img } = await window.BurrowImageUtils.readImageFile(files[0]);
+  setCurrentImage(img, files[0].name);
+  if (files.length > 1) {
+    qs("imageName").innerText = source === "folder"
+      ? (activeLanguage === "fr" ? `${files.length} images du dossier prêtes` : `${files.length} folder images ready`)
+      : (activeLanguage === "fr" ? `${files.length} images prêtes` : `${files.length} images ready`);
+    qs("imageMeta").innerText = source === "folder"
+      ? (activeLanguage === "fr"
+        ? "Appuyez sur Run Burrow Detection pour analyser toutes les images du dossier."
+        : "Press Run Burrow Detection to analyse all images in this folder.")
+      : (activeLanguage === "fr"
+        ? "Appuyez sur Run Burrow Detection pour analyser toutes les images sélectionnées."
+        : "Press Run Burrow Detection to analyse all selected images.");
+  }
+  logLine(source === "folder"
+    ? `Folder queue ready: ${files.length} image(s).`
+    : `Local upload queue ready: ${files.length} image(s).`);
 }
 
 function setCurrentImage(img, name) {
@@ -811,6 +856,58 @@ function setCurrentImage(img, name) {
   renderTable();
   updateOverlayControls();
   logLine(`Image loaded: ${name}`);
+}
+
+async function runLocalUploadBatch() {
+  if (!localUploadQueue.length) return;
+  batchResults = [];
+  renderBatchResults();
+  setBatchControlsDisabled(true);
+  const totalFiles = localUploadQueue.length;
+  setStatus(
+    activeLanguage === "fr"
+      ? `Analyse du lot 1/${totalFiles}...`
+      : `Running local batch 1/${totalFiles}...`,
+    "neutral",
+  );
+  logLine(`Local batch started with ${totalFiles} image(s).`);
+
+  try {
+    for (let index = 0; index < localUploadQueue.length; index += 1) {
+      const file = localUploadQueue[index];
+      setStatus(
+        activeLanguage === "fr"
+          ? `Analyse du lot ${index + 1}/${totalFiles}...`
+          : `Running local batch ${index + 1}/${totalFiles}...`,
+        "neutral",
+      );
+      const { img } = await window.BurrowImageUtils.readImageFile(file);
+      setCurrentImage(img, file.name);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const detections = await runModelOnCurrentImage();
+      batchResults.push({
+        id: file.name,
+        name: file.webkitRelativePath || file.name,
+        count: detections.length,
+      });
+      renderBatchResults();
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    }
+    const total = batchResults.reduce((sum, row) => sum + row.count, 0);
+    setStatus(
+      activeLanguage === "fr"
+        ? `Lot terminé: ${total} terriers dans ${batchResults.length} images.`
+        : `Batch complete: ${total} burrows in ${batchResults.length} images.`,
+      "ok",
+    );
+    logLine(`Local batch complete: ${total} burrows in ${batchResults.length} images.`);
+  } catch (err) {
+    setStatus(activeLanguage === "fr" ? "Échec du lot" : "Batch failed", "error");
+    logLine(`Local batch error: ${err.message}`);
+    console.error(err);
+  } finally {
+    setBatchControlsDisabled(false);
+  }
 }
 
 async function loadSampleImages() {
@@ -1076,6 +1173,10 @@ async function runInference() {
     return;
   }
   if (!session || !currentImage) return;
+  if (localUploadQueue.length > 1) {
+    await runLocalUploadBatch();
+    return;
+  }
   qs("runBtn").disabled = true;
   qs("runBtnText").innerText = activeLanguage === "fr" ? "Exécution..." : "Running...";
   setStatus("Running inference locally...", "neutral");
@@ -1816,6 +1917,8 @@ async function initApp() {
   refreshUsageGate();
   qs("onnxFileInput").addEventListener("change", handleManualModel);
   qs("imageInput").addEventListener("change", handleImageUpload);
+  qs("folderInput")?.addEventListener("change", handleFolderUpload);
+  qs("folderSelectBtn")?.addEventListener("click", () => qs("folderInput")?.click());
   qs("openSamplesBtn")?.addEventListener("click", openSampleModal);
   qs("closeSamplesBtn")?.addEventListener("click", closeSampleModal);
   qs("selectAllSamplesBtn")?.addEventListener("click", selectAllSamples);

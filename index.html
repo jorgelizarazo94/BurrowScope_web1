@@ -298,9 +298,14 @@
           >
             <i data-lucide="upload-cloud" class="h-9 w-9 text-blue-600"></i>
             <span class="mt-2 text-sm font-extrabold text-slate-900" data-i18n="uploadBankPhoto">Upload Bank Photo</span>
-            <span class="mt-1 text-xs text-slate-500">JPG, PNG, or WebP</span>
+            <span class="mt-1 text-xs text-slate-500" data-i18n="imageFormatsHint">JPG, PNG, or WebP. You can select several with Ctrl/Cmd.</span>
           </label>
-          <input id="imageInput" type="file" accept="image/*" class="hidden" />
+          <input id="imageInput" type="file" accept="image/*" multiple class="hidden" />
+          <input id="folderInput" type="file" accept="image/*" webkitdirectory directory multiple class="hidden" />
+          <button id="folderSelectBtn" type="button" class="secondary-btn mt-3 w-full">
+            <i data-lucide="folder-open" class="h-4 w-4"></i>
+            <span data-i18n="selectFolderButton">Select Folder</span>
+          </button>
 
           <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <p id="imageName" class="text-sm font-bold text-slate-800" data-i18n="noImageLoaded">No image loaded</p>

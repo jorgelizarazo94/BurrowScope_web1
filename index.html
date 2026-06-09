@@ -20,7 +20,7 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icon.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="css/style.css?v=20260603f" />
+    <link rel="stylesheet" href="css/style.css?v=20260608b" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0/dist/ort.min.js"></script>
@@ -40,26 +40,8 @@
     </div>
 
     <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-      <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-start xl:gap-8">
-        <div class="flex items-center gap-4">
-          <img
-            src="icon.svg"
-            alt="BurrowScope icon"
-            class="h-12 w-12 shrink-0 asset-img sm:h-14 sm:w-14"
-            onerror="this.style.display='none'"
-          />
-          <div>
-            <h1 class="flex items-center gap-2 text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
-              BurrowScope
-              <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-700">
-                ONNX
-              </span>
-            </h1>
-            <p class="text-[10px] font-medium text-slate-500 sm:text-[11px]" data-i18n="headerTagline">Training models for easier wildlife monitoring</p>
-          </div>
-        </div>
-
-        <div class="header-partners flex flex-col gap-2 xl:items-end">
+      <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div class="header-partners flex flex-col gap-2">
           <div class="header-logo-row flex flex-wrap items-center justify-start gap-3">
             <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
               <img src="img/birds-canada-logo.svg" alt="Birds Canada" class="birds-logo asset-img" onerror="this.style.display='none'" />
@@ -103,7 +85,7 @@
           <img
             src="img/bankLogo1.png"
             alt="BurrowScope app logo"
-            class="h-36 w-36 asset-img sm:h-44 sm:w-44 lg:h-48 lg:w-48"
+            class="h-60 w-60 asset-img sm:h-72 sm:w-72 lg:h-80 lg:w-80"
             onerror="this.style.display='none'"
           />
           <div>
@@ -134,7 +116,7 @@
 
     <main class="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-12 lg:px-8">
       <aside class="space-y-6 lg:col-span-4">
-        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section class="image-input-panel rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="quickEyebrow">Quick start</p>
@@ -163,6 +145,50 @@
               <span data-i18n="quickStep4">Export CSV, JSON, or an overlay PNG for local field records.</span>
             </li>
           </ol>
+          <div class="mt-4">
+            <button id="glossaryBtn" type="button" class="secondary-btn w-full sm:w-auto" title="Open glossary">
+              <i data-lucide="book-open-text" class="h-4 w-4"></i>
+              <span data-i18n="glossaryButton">Glossary</span>
+            </button>
+          </div>
+          <div class="mt-3">
+            <button id="instructionsBtn" type="button" class="danger-btn w-full sm:w-auto" title="Export technical PDF instructions">
+              <i data-lucide="file-text" class="h-4 w-4"></i>
+              <span data-i18n="instructionsButton">Instructions</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-wide text-blue-600" data-i18n="imageInputEyebrow">Image input</p>
+              <h2 class="mt-1 text-xl font-extrabold text-slate-900" data-i18n="bankPhotoTitle">Bank photo</h2>
+              <p class="mt-2 max-w-sm text-sm leading-5 text-slate-600" data-i18n="imageInputHelp">Place your own bank-wall images here to analyse them with the burrow model.</p>
+            </div>
+            <i data-lucide="image-up" class="h-7 w-7 text-blue-600"></i>
+          </div>
+
+          <label
+            id="imageInputLabel"
+            for="imageInput"
+            class="image-input-dropzone mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
+          >
+            <i data-lucide="upload-cloud" class="h-9 w-9 text-blue-600"></i>
+            <span class="mt-2 text-base font-extrabold text-slate-900" data-i18n="uploadBankPhoto">Upload Bank Photo</span>
+            <span class="mt-1 text-sm text-slate-500" data-i18n="imageFormatsHint">JPG, PNG, or WebP. You can select several with Ctrl/Cmd.</span>
+          </label>
+          <input id="imageInput" type="file" accept="image/*" multiple class="hidden" />
+          <input id="folderInput" type="file" accept="image/*" webkitdirectory directory multiple class="hidden" />
+          <button id="folderSelectBtn" type="button" class="secondary-btn mt-3 w-full">
+            <i data-lucide="folder-open" class="h-4 w-4"></i>
+            <span data-i18n="selectFolderButton">Select Folder</span>
+          </button>
+
+          <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p id="imageName" class="text-sm font-bold text-slate-800" data-i18n="noImageLoaded">No image loaded</p>
+            <p id="imageMeta" class="mt-1 text-xs text-slate-500" data-i18n="chooseImageFirst">Choose a bank-wall image first.</p>
+          </div>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -242,8 +268,8 @@
         <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="exampleImagesEyebrow">Example images</p>
-              <h2 class="mt-1 text-lg font-extrabold text-slate-900">Batch 002 random</h2>
+              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="exampleImagesEyebrow">Example images to learn how it works</p>
+              <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="exampleImagesTitle">Try sample bank photos</h2>
             </div>
             <i data-lucide="images" class="h-6 w-6 text-blue-600"></i>
           </div>
@@ -281,37 +307,6 @@
             </div>
           </div>
         </section>
-
-        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="imageInputEyebrow">Image input</p>
-              <h2 class="mt-1 text-lg font-extrabold text-slate-900" data-i18n="bankPhotoTitle">Bank photo</h2>
-            </div>
-            <i data-lucide="image" class="h-6 w-6 text-blue-600"></i>
-          </div>
-
-          <label
-            id="imageInputLabel"
-            for="imageInput"
-            class="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
-          >
-            <i data-lucide="upload-cloud" class="h-9 w-9 text-blue-600"></i>
-            <span class="mt-2 text-sm font-extrabold text-slate-900" data-i18n="uploadBankPhoto">Upload Bank Photo</span>
-            <span class="mt-1 text-xs text-slate-500" data-i18n="imageFormatsHint">JPG, PNG, or WebP. You can select several with Ctrl/Cmd.</span>
-          </label>
-          <input id="imageInput" type="file" accept="image/*" multiple class="hidden" />
-          <input id="folderInput" type="file" accept="image/*" webkitdirectory directory multiple class="hidden" />
-          <button id="folderSelectBtn" type="button" class="secondary-btn mt-3 w-full">
-            <i data-lucide="folder-open" class="h-4 w-4"></i>
-            <span data-i18n="selectFolderButton">Select Folder</span>
-          </button>
-
-          <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <p id="imageName" class="text-sm font-bold text-slate-800" data-i18n="noImageLoaded">No image loaded</p>
-            <p id="imageMeta" class="mt-1 text-xs text-slate-500" data-i18n="chooseImageFirst">Choose a bank-wall image first.</p>
-          </div>
-        </section>
       </aside>
 
       <section class="space-y-6 lg:col-span-8">
@@ -321,25 +316,10 @@
               <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="visualWorkspaceEyebrow">Visual workspace</p>
               <h2 class="mt-1 text-xl font-extrabold text-slate-900" data-i18n="perImageDetectionTitle">Per-image burrow detection</h2>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <button id="runBtn" type="button" disabled class="primary-btn">
-                <i data-lucide="play" class="h-4 w-4"></i>
-                <span id="runBtnText" data-i18n="runBurrowDetection">Run Burrow Detection</span>
-              </button>
-              <button id="instructionsBtn" type="button" class="danger-btn" title="Export technical PDF instructions">
-                <i data-lucide="file-text" class="h-4 w-4"></i>
-                <span data-i18n="instructionsButton">Instructions</span>
-              </button>
-              <button id="exportCsvBtn" type="button" disabled class="icon-btn" title="Export CSV">
-                <i data-lucide="file-spreadsheet" class="h-4 w-4"></i>
-              </button>
-              <button id="exportJsonBtn" type="button" disabled class="icon-btn" title="Export JSON">
-                <i data-lucide="braces" class="h-4 w-4"></i>
-              </button>
-              <button id="exportPngBtn" type="button" disabled class="icon-btn" title="Export overlay PNG">
-                <i data-lucide="download" class="h-4 w-4"></i>
-              </button>
-            </div>
+            <button id="runBtn" type="button" disabled class="primary-btn viewer-action-btn viewer-action-btn-run visual-workspace-run">
+              <i data-lucide="bird" class="h-4 w-4"></i>
+              <span id="runBtnText" data-i18n="runBurrowDetection">Run Burrow Detection</span>
+            </button>
           </div>
 
           <div class="p-4">
@@ -351,6 +331,15 @@
               <div class="viewer-compare-slider-wrap">
                 <label for="overlayRevealSlider" class="viewer-compare-label" data-i18n="highlightReveal">Highlight reveal</label>
                 <input id="overlayRevealSlider" type="range" min="0" max="100" step="1" value="100" disabled />
+              </div>
+              <div class="viewer-zoom-controls">
+                <button id="zoomToggleBtn" type="button" class="secondary-btn" disabled>
+                  <i data-lucide="zoom-in" class="h-4 w-4"></i>
+                  <span data-i18n="zoomModeOff">Enable zoom</span>
+                </button>
+                <button id="zoomResetBtn" type="button" class="icon-btn" disabled aria-label="Reset zoom">
+                  <i data-lucide="locate-fixed" class="h-4 w-4"></i>
+                </button>
               </div>
             </div>
             <div class="analysis-nav mb-3">
@@ -375,6 +364,24 @@
               <div class="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
                 <span data-i18n="viewerHelperText">Masks, boxes, and centroids render here.</span>
               </div>
+            </div>
+            <div class="viewer-action-row mt-4 flex flex-wrap items-center gap-3">
+              <button id="exportCurrentCsvBtn" type="button" disabled class="export-btn export-btn-csv viewer-action-btn viewer-action-btn-csv" title="Download CSV for the image on screen">
+                <i data-lucide="file-spreadsheet" class="h-4 w-4"></i>
+                <span data-i18n="downloadCurrentCsvButton">Download Current CSV</span>
+              </button>
+              <button id="exportSessionCsvBtn" type="button" disabled class="export-btn export-btn-csv viewer-action-btn viewer-action-btn-csv" title="Download CSV for all analysed images">
+                <i data-lucide="table-properties" class="h-4 w-4"></i>
+                <span data-i18n="downloadSessionCsvButton">Download Session CSV</span>
+              </button>
+              <button id="exportCurrentPngBtn" type="button" disabled class="export-btn export-btn-png viewer-action-btn viewer-action-btn-png" title="Download marked-up PNG for the image on screen">
+                <i data-lucide="image-down" class="h-4 w-4"></i>
+                <span data-i18n="downloadCurrentPngButton">Download Current PNG</span>
+              </button>
+              <button id="exportSessionPngBtn" type="button" disabled class="export-btn export-btn-png viewer-action-btn viewer-action-btn-png" title="Download marked-up PNGs for all analysed images">
+                <i data-lucide="images" class="h-4 w-4"></i>
+                <span data-i18n="downloadSessionPngButton">Download All Session PNGs</span>
+              </button>
             </div>
           </div>
         </section>
@@ -503,7 +510,7 @@
       <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
         <div>
           <p class="text-sm font-extrabold text-slate-900">BurrowScope Initiative</p>
-          <p class="mt-1 text-xs text-slate-500" data-i18n="footerCopy">Bank Swallow burrow segmentation and inspection workspace.</p>
+          <p class="mt-1 text-xs text-slate-500" data-i18n="footerCopy">A Birds Canada and Western University initiative, supported by Mitacs Accelerate, to develop accessible and free AI tools for NGOs, students, and the Government of Canada to support insectivorous bird monitoring in Canada.</p>
         </div>
         <div class="footer-logo-row flex flex-wrap items-center gap-4 opacity-85">
           <a class="logo-link" href="https://www.birdscanada.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Birds Canada">
@@ -621,8 +628,64 @@
       </div>
     </div>
 
+    <div id="glossaryModal" class="fixed inset-0 z-[90] hidden items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+      <div class="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+        <div class="flex items-center justify-between gap-4 border-b border-slate-200 p-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wide text-blue-600" data-i18n="glossaryEyebrow">Field glossary</p>
+            <h2 class="text-xl font-extrabold text-slate-900" data-i18n="glossaryTitle">BurrowScope glossary</h2>
+          </div>
+          <button id="closeGlossaryBtn" type="button" class="icon-btn" aria-label="Close glossary">
+            <i data-lucide="x" class="h-4 w-4"></i>
+          </button>
+        </div>
+        <div id="glossaryBody" class="grid gap-4 overflow-y-auto p-5 md:grid-cols-2">
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermYolo">YOLO</h3>
+            <p data-i18n="glossaryYolo">YOLO means “You Only Look Once”. Here it refers to the object-detection family used as the model architecture base.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermYoloSeg">YOLO-seg</h3>
+            <p data-i18n="glossaryYoloSeg">YOLO-seg adds segmentation masks to the detector, so the app can show both burrow boxes and mask overlays for each image.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermTransferLearning">Transfer learning</h3>
+            <p data-i18n="glossaryTransferLearning">Transfer learning means the burrow model was fine-tuned from a pretrained YOLO segmentation model instead of being trained from zero.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermOnnx">ONNX</h3>
+            <p data-i18n="glossaryOnnx">ONNX is the portable inference format used by this app. The trained YOLO model was exported to ONNX for local browser inference.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermOnnxRuntime">ONNX Runtime Web</h3>
+            <p data-i18n="glossaryOnnxRuntime">ONNX Runtime Web is the engine that runs the exported model locally inside the browser, without sending images to a cloud service.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermNms">NMS</h3>
+            <p data-i18n="glossaryNms">Non-maximum suppression removes duplicate-like overlapping detections so the final count is based on the most plausible boxes.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermIou">IoU</h3>
+            <p data-i18n="glossaryIou">Intersection over Union measures how much two boxes overlap. It is used by NMS to decide when detections are too similar.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermConfidence">Confidence threshold</h3>
+            <p data-i18n="glossaryConfidence">The confidence threshold controls how strong a prediction must be before it is kept for review.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermMask">Mask threshold</h3>
+            <p data-i18n="glossaryMask">The mask threshold controls how the predicted segmentation mask is binarised for visual overlay.</p>
+          </article>
+          <article class="glossary-card">
+            <h3 data-i18n="glossaryTermBoxCentroid">Bounding box and centroid</h3>
+            <p data-i18n="glossaryBoxCentroid">A bounding box frames a predicted burrow opening. The centroid is the centre point of that box and helps with inspection and downstream spatial work.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+
     <script src="js/image-utils.js?v=20260601b"></script>
     <script src="js/yolo-seg-postprocess.js?v=20260601c"></script>
-    <script src="js/app.js?v=20260603a"></script>
+    <script src="js/app.js?v=20260608b"></script>
   </body>
 </html>

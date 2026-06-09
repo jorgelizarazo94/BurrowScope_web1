@@ -26,13 +26,22 @@ let overlayHighlightsVisible = true;
 let overlayRevealPercent = 100;
 let localUploadQueue = [];
 let localUploadSource = "files";
+let zoomModeEnabled = false;
+let zoomScale = 1;
+let zoomPanX = 0;
+let zoomPanY = 0;
+let zoomPointerActive = false;
+let zoomPointerStartX = 0;
+let zoomPointerStartY = 0;
+let zoomStartPanX = 0;
+let zoomStartPanY = 0;
 
 const TRANSLATIONS = {
   en: {
-    headerTagline: "Training models for easier wildlife monitoring",
+    headerTagline: "A model built with care to study Bank Swallows",
     fundingLabel: "Funding and support",
     quickEyebrow: "Quick start",
-    heroEyebrow: "Training models for easier wildlife monitoring",
+    heroEyebrow: "A model built with care to study Bank Swallows",
     heroTitle: "Bank Swallow burrow inspection",
     heroCopy: "Run local ONNX inference on one photo or selected image batches, then review boxes, masks, centroids, and exports.",
     quickTitle: "Visual inspection workflow",
@@ -48,7 +57,8 @@ const TRANSLATIONS = {
     iouThresholdLabel: "IoU NMS Threshold",
     maskThresholdLabel: "Mask Threshold",
     maxDetectionsLabel: "Maximum detections",
-    exampleImagesEyebrow: "Example images",
+    exampleImagesEyebrow: "Example images to learn how it works",
+    exampleImagesTitle: "Try sample bank photos",
     openMiniGallery: "Open mini gallery",
     selectedExampleCountSuffix: "selected from 10 example photos.",
     runSelectedExamples: "Run selected examples",
@@ -57,6 +67,7 @@ const TRANSLATIONS = {
     burrowsColumn: "Burrows",
     imageInputEyebrow: "Image input",
     bankPhotoTitle: "Bank photo",
+    imageInputHelp: "Place your own bank-wall images here to analyse them with the burrow model.",
     uploadBankPhoto: "Upload Bank Photo",
     imageFormatsHint: "JPG, PNG, or WebP. You can select several with Ctrl/Cmd.",
     selectFolderButton: "Select Folder",
@@ -65,14 +76,46 @@ const TRANSLATIONS = {
     visualWorkspaceEyebrow: "Visual workspace",
     perImageDetectionTitle: "Per-image burrow detection",
     runBurrowDetection: "Run Burrow Detection",
+    downloadCsvButton: "Download CSV Table",
+    downloadCurrentCsvButton: "Download Current CSV",
+    downloadSessionCsvButton: "Download Session CSV",
+    downloadJsonButton: "Download Full JSON",
+    downloadPngButton: "Download Marked-up PNG",
+    downloadCurrentPngButton: "Download Current PNG",
+    downloadSessionPngButton: "Download All Session PNGs",
     instructionsButton: "Instructions",
+    glossaryButton: "Glossary",
     burrowHighlightsOn: "Burrow highlights on",
     burrowHighlightsOff: "Burrow highlights off",
     highlightReveal: "Highlight reveal",
+    zoomModeOff: "Enable zoom",
+    zoomModeOn: "Disable zoom",
     previousAnalysed: "Previous analysed",
     nextAnalysed: "Next analysed",
     noAnalysedImages: "No analysed images in this session.",
     viewerHelperText: "Masks, boxes, and centroids render here.",
+    glossaryEyebrow: "Field glossary",
+    glossaryTitle: "BurrowScope glossary",
+    glossaryTermYolo: "YOLO",
+    glossaryTermYoloSeg: "YOLO-seg",
+    glossaryTermTransferLearning: "Transfer learning",
+    glossaryTermOnnx: "ONNX",
+    glossaryTermOnnxRuntime: "ONNX Runtime Web",
+    glossaryTermNms: "NMS",
+    glossaryTermIou: "IoU",
+    glossaryTermConfidence: "Confidence threshold",
+    glossaryTermMask: "Mask threshold",
+    glossaryTermBoxCentroid: "Bounding box and centroid",
+    glossaryYolo: "YOLO means “You Only Look Once”. Here it refers to the object-detection family used as the model architecture base.",
+    glossaryYoloSeg: "YOLO-seg adds segmentation masks to the detector, so the app can show both burrow boxes and mask overlays for each image.",
+    glossaryTransferLearning: "Transfer learning means the burrow model was fine-tuned from a pretrained YOLO segmentation model instead of being trained from zero.",
+    glossaryOnnx: "ONNX is the portable inference format used by this app. The trained YOLO model was exported to ONNX for local browser inference.",
+    glossaryOnnxRuntime: "ONNX Runtime Web is the engine that runs the exported model locally inside the browser, without sending images to a cloud service.",
+    glossaryNms: "Non-maximum suppression removes duplicate-like overlapping detections so the final count is based on the most plausible boxes.",
+    glossaryIou: "Intersection over Union measures how much two boxes overlap. It is used by NMS to decide when detections are too similar.",
+    glossaryConfidence: "The confidence threshold controls how strong a prediction must be before it is kept for review.",
+    glossaryMask: "The mask threshold controls how the predicted segmentation mask is binarised for visual overlay.",
+    glossaryBoxCentroid: "A bounding box frames a predicted burrow opening. The centroid is the centre point of that box and helps with inspection and downstream spatial work.",
     detectionsDashboardEyebrow: "Detections dashboard",
     burrowsDetectedTitle: "Burrows Detected",
     maskStatusTitle: "Mask status",
@@ -95,7 +138,7 @@ const TRANSLATIONS = {
     modelUpdateHint: "If there is an updated inference model, upload it here.",
     consoleEyebrow: "Processing log",
     consoleTitle: "Session",
-    footerCopy: "Bank Swallow burrow segmentation and inspection workspace.",
+    footerCopy: "A Birds Canada and Western University initiative, supported by Mitacs Accelerate, to develop accessible and free AI tools for NGOs, students, and the Government of Canada to support insectivorous bird monitoring in Canada.",
     termsEyebrow: "Local ONNX workspace",
     termsTitle: "Use conditions",
     termsP1: "BurrowScope is provided for non-profit research, conservation, and field inspection work.",
@@ -107,10 +150,10 @@ const TRANSLATIONS = {
     reviewTerms: "Review terms",
   },
   fr: {
-    headerTagline: "Entraîner des modèles pour faciliter le suivi de la faune",
+    headerTagline: "Un modèle conçu avec soin pour étudier les hirondelles de rivage",
     fundingLabel: "Financement et soutien",
     quickEyebrow: "Démarrage rapide",
-    heroEyebrow: "Entraîner des modèles pour faciliter le suivi de la faune",
+    heroEyebrow: "Un modèle conçu avec soin pour étudier les hirondelles de rivage",
     heroTitle: "Inspection des terriers d'hirondelles de rivage",
     heroCopy: "Lancez l'inférence ONNX locale sur une photo ou sur des lots d'images sélectionnées, puis révisez les boîtes, les masques, les centroïdes et les exports.",
     quickTitle: "Flux d'inspection visuelle",
@@ -126,7 +169,8 @@ const TRANSLATIONS = {
     iouThresholdLabel: "Seuil IoU NMS",
     maskThresholdLabel: "Seuil du masque",
     maxDetectionsLabel: "Nombre maximal de détections",
-    exampleImagesEyebrow: "Images d'exemple",
+    exampleImagesEyebrow: "Images d'exemple pour voir comment cela fonctionne",
+    exampleImagesTitle: "Essayer des photos d'exemple",
     openMiniGallery: "Ouvrir la mini-galerie",
     selectedExampleCountSuffix: "sélectionnées parmi 10 photos d'exemple.",
     runSelectedExamples: "Lancer les exemples sélectionnés",
@@ -135,6 +179,7 @@ const TRANSLATIONS = {
     burrowsColumn: "Terriers",
     imageInputEyebrow: "Entrée image",
     bankPhotoTitle: "Photo de berge",
+    imageInputHelp: "Placez ici vos propres images de paroi de berge pour les analyser avec le modèle de terriers.",
     uploadBankPhoto: "Importer une photo de berge",
     imageFormatsHint: "JPG, PNG ou WebP. Vous pouvez en choisir plusieurs avec Ctrl/Cmd.",
     selectFolderButton: "Sélectionner un dossier",
@@ -143,14 +188,46 @@ const TRANSLATIONS = {
     visualWorkspaceEyebrow: "Espace visuel",
     perImageDetectionTitle: "Détection de terriers par image",
     runBurrowDetection: "Lancer la détection des terriers",
+    downloadCsvButton: "Télécharger le tableau CSV",
+    downloadCurrentCsvButton: "Télécharger le CSV courant",
+    downloadSessionCsvButton: "Télécharger le CSV de session",
+    downloadJsonButton: "Télécharger le JSON complet",
+    downloadPngButton: "Télécharger le PNG annoté",
+    downloadCurrentPngButton: "Télécharger le PNG courant",
+    downloadSessionPngButton: "Télécharger tous les PNG de session",
     instructionsButton: "Instructions",
+    glossaryButton: "Glossaire",
     burrowHighlightsOn: "Surlignage des terriers activé",
     burrowHighlightsOff: "Surlignage des terriers désactivé",
     highlightReveal: "Révélation du surlignage",
+    zoomModeOff: "Activer le zoom",
+    zoomModeOn: "Désactiver le zoom",
     previousAnalysed: "Image analysée précédente",
     nextAnalysed: "Image analysée suivante",
     noAnalysedImages: "Aucune image analysée dans cette session.",
     viewerHelperText: "Les masques, boîtes et centroïdes s'affichent ici.",
+    glossaryEyebrow: "Glossaire terrain",
+    glossaryTitle: "Glossaire BurrowScope",
+    glossaryTermYolo: "YOLO",
+    glossaryTermYoloSeg: "YOLO-seg",
+    glossaryTermTransferLearning: "Apprentissage par transfert",
+    glossaryTermOnnx: "ONNX",
+    glossaryTermOnnxRuntime: "ONNX Runtime Web",
+    glossaryTermNms: "NMS",
+    glossaryTermIou: "IoU",
+    glossaryTermConfidence: "Seuil de confiance",
+    glossaryTermMask: "Seuil du masque",
+    glossaryTermBoxCentroid: "Boîte englobante et centroïde",
+    glossaryYolo: "YOLO signifie « You Only Look Once ». Ici, cela désigne la famille de détection d'objets utilisée comme base d'architecture du modèle.",
+    glossaryYoloSeg: "YOLO-seg ajoute des masques de segmentation au détecteur, donc l'application peut montrer les boîtes et les masques des terriers pour chaque image.",
+    glossaryTransferLearning: "Le transfer learning veut dire que le modèle des terriers a été affiné à partir d'un modèle YOLO de segmentation préentraîné au lieu d'être entraîné depuis zéro.",
+    glossaryOnnx: "ONNX est le format d'inférence portable utilisé par l'application. Le modèle YOLO entraîné a été exporté en ONNX pour l'inférence locale dans le navigateur.",
+    glossaryOnnxRuntime: "ONNX Runtime Web est le moteur qui exécute le modèle exporté localement dans le navigateur, sans envoyer les images vers un service infonuagique.",
+    glossaryNms: "La suppression non maximale enlève les détections qui se chevauchent comme des doublons, pour que le compte final repose sur les boîtes les plus plausibles.",
+    glossaryIou: "L'Intersection over Union mesure le chevauchement entre deux boîtes. Elle sert à la NMS pour décider quand des détections sont trop semblables.",
+    glossaryConfidence: "Le seuil de confiance contrôle la force minimale d'une prédiction avant qu'elle soit conservée pour la révision.",
+    glossaryMask: "Le seuil du masque contrôle la binarisation du masque de segmentation prédit pour la superposition visuelle.",
+    glossaryBoxCentroid: "Une boîte englobante encadre une ouverture de terrier prédite. Le centroïde est le point central de cette boîte et aide pour l'inspection et le travail spatial en aval.",
     detectionsDashboardEyebrow: "Tableau des détections",
     burrowsDetectedTitle: "Terriers détectés",
     maskStatusTitle: "État des masques",
@@ -173,7 +250,7 @@ const TRANSLATIONS = {
     modelUpdateHint: "S'il existe une mise à jour du modèle d'inférence, téléversez-la ici.",
     consoleEyebrow: "Journal de traitement",
     consoleTitle: "Session",
-    footerCopy: "Espace d'inspection et de segmentation des terriers d'hirondelles de rivage.",
+    footerCopy: "Une initiative de Birds Canada et de Western University, appuyée par Mitacs Accelerate, pour développer des outils d'IA accessibles et gratuits destinés aux ONG, aux étudiantes et étudiants, et au gouvernement du Canada afin de faciliter le suivi des oiseaux insectivores au Canada.",
     termsEyebrow: "Espace ONNX local",
     termsTitle: "Conditions d'utilisation",
     termsP1: "BurrowScope est fourni pour la recherche, la conservation et l'inspection de terrain sans but lucratif.",
@@ -215,7 +292,13 @@ function setLanguage(lang) {
     qs("runBtnText").innerText = t("runBurrowDetection");
   }
   updateOverlayControls();
+  updateZoomControls();
   renderSampleGrid();
+}
+
+function syncModalState() {
+  const openModal = [qs("termsModal"), qs("sampleModal"), qs("glossaryModal")].some((modal) => modal && !modal.classList.contains("hidden"));
+  document.body.classList.toggle("modal-open", openModal);
 }
 
 function openTermsModal() {
@@ -223,6 +306,7 @@ function openTermsModal() {
   if (!modal) return;
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  syncModalState();
 }
 
 function closeTermsModal() {
@@ -230,6 +314,23 @@ function closeTermsModal() {
   if (!modal) return;
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+  syncModalState();
+}
+
+function openGlossaryModal() {
+  const modal = qs("glossaryModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  syncModalState();
+}
+
+function closeGlossaryModal() {
+  const modal = qs("glossaryModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+  syncModalState();
 }
 
 function refreshUsageGate() {
@@ -282,6 +383,50 @@ function getViewerCanvases() {
   };
 }
 
+function getViewerFrame() {
+  return document.querySelector(".canvas-frame");
+}
+
+function getViewerStage() {
+  return document.querySelector(".compare-stage");
+}
+
+function clampZoomScale(nextScale) {
+  return Math.min(5, Math.max(1, nextScale));
+}
+
+function applyViewerTransform() {
+  const frame = getViewerFrame();
+  const stage = getViewerStage();
+  if (!frame || !stage) return;
+  stage.style.transform = `translate(${zoomPanX}px, ${zoomPanY}px) scale(${zoomScale})`;
+  frame.classList.toggle("is-zoomed", zoomModeEnabled);
+  frame.classList.toggle("is-panning", zoomPointerActive);
+}
+
+function resetViewerZoom() {
+  zoomScale = 1;
+  zoomPanX = 0;
+  zoomPanY = 0;
+  zoomPointerActive = false;
+  applyViewerTransform();
+  updateZoomControls();
+}
+
+function updateZoomControls() {
+  const toggleBtn = qs("zoomToggleBtn");
+  const resetBtn = qs("zoomResetBtn");
+  const hasImage = Boolean(currentImage);
+  if (toggleBtn) {
+    toggleBtn.disabled = !hasImage;
+    toggleBtn.innerHTML = zoomModeEnabled
+      ? `<i data-lucide="scan-search" class="h-4 w-4"></i> ${escapeHtml(t("zoomModeOn"))}`
+      : `<i data-lucide="zoom-in" class="h-4 w-4"></i> ${escapeHtml(t("zoomModeOff"))}`;
+  }
+  if (resetBtn) resetBtn.disabled = !hasImage || (!zoomModeEnabled && zoomScale === 1 && zoomPanX === 0 && zoomPanY === 0);
+  if (window.lucide) window.lucide.createIcons();
+}
+
 function updateOverlayControls() {
   const slider = qs("overlayRevealSlider");
   const button = qs("toggleOverlayBtn");
@@ -315,6 +460,7 @@ function updateOverlayControls() {
   }
 
   if (window.lucide) window.lucide.createIcons();
+  updateZoomControls();
 }
 
 function setHiddenIfPresent(id, hidden) {
@@ -631,9 +777,11 @@ function drawStoredDetections() {
 
 function renderLoadedAnalysis() {
   qs("countValue").innerText = String(currentDetections.length);
-  qs("exportCsvBtn").disabled = sessionAnalyses.length === 0;
-  qs("exportJsonBtn").disabled = currentDetections.length === 0;
-  qs("exportPngBtn").disabled = currentDetections.length === 0;
+  if (qs("exportCurrentCsvBtn")) qs("exportCurrentCsvBtn").disabled = currentDetections.length === 0;
+  if (qs("exportSessionCsvBtn")) qs("exportSessionCsvBtn").disabled = sessionAnalyses.length === 0;
+  if (qs("exportJsonBtn")) qs("exportJsonBtn").disabled = currentDetections.length === 0;
+  if (qs("exportCurrentPngBtn")) qs("exportCurrentPngBtn").disabled = currentDetections.length === 0;
+  if (qs("exportSessionPngBtn")) qs("exportSessionPngBtn").disabled = sessionAnalyses.length === 0;
   updateDetectionDiagnostics(currentDetections);
   renderTable();
   updateAnalysisNavigation();
@@ -691,6 +839,7 @@ async function showAnalysisAt(index) {
   currentAnalysisIndex = index;
   qs("imageName").innerText = analysis.name;
   qs("imageMeta").innerText = `${analysis.width} x ${analysis.height}px`;
+  resetViewerZoom();
   renderLoadedAnalysis();
 }
 
@@ -843,11 +992,14 @@ function setCurrentImage(img, name) {
   qs("imageMeta").innerText = `${img.naturalWidth} x ${img.naturalHeight}px`;
   overlayHighlightsVisible = true;
   overlayRevealPercent = 100;
+  resetViewerZoom();
   drawBaseImage();
   qs("runBtn").disabled = !session || batchRunning;
-  qs("exportCsvBtn").disabled = true;
-  qs("exportJsonBtn").disabled = true;
-  qs("exportPngBtn").disabled = true;
+  if (qs("exportCurrentCsvBtn")) qs("exportCurrentCsvBtn").disabled = true;
+  if (qs("exportSessionCsvBtn")) qs("exportSessionCsvBtn").disabled = sessionAnalyses.length === 0;
+  if (qs("exportJsonBtn")) qs("exportJsonBtn").disabled = true;
+  if (qs("exportCurrentPngBtn")) qs("exportCurrentPngBtn").disabled = true;
+  if (qs("exportSessionPngBtn")) qs("exportSessionPngBtn").disabled = sessionAnalyses.length === 0;
   currentDetections = [];
   qs("countValue").innerText = "0";
   refreshUsageGate();
@@ -991,6 +1143,7 @@ function openSampleModal() {
   if (!modal) return;
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  syncModalState();
 }
 
 function closeSampleModal() {
@@ -998,6 +1151,7 @@ function closeSampleModal() {
   if (!modal) return;
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+  syncModalState();
 }
 
 async function runModelOnCurrentImage() {
@@ -1131,7 +1285,63 @@ function drawBaseImage() {
     const overlayCtx = overlay.getContext("2d", { willReadFrequently: true });
     overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
   }
+  applyViewerTransform();
   updateOverlayControls();
+}
+
+function setZoomMode(enabled) {
+  zoomModeEnabled = Boolean(enabled);
+  if (!zoomModeEnabled) {
+    zoomScale = 1;
+    zoomPanX = 0;
+    zoomPanY = 0;
+    zoomPointerActive = false;
+  }
+  applyViewerTransform();
+  updateZoomControls();
+}
+
+function handleViewerWheel(event) {
+  if (!zoomModeEnabled || !currentImage) return;
+  event.preventDefault();
+  const stage = getViewerStage();
+  if (!stage) return;
+  const previousScale = zoomScale;
+  const nextScale = clampZoomScale(previousScale + (event.deltaY < 0 ? 0.2 : -0.2));
+  if (nextScale === previousScale) return;
+  const stageRect = stage.getBoundingClientRect();
+  const anchorX = event.clientX - stageRect.left;
+  const anchorY = event.clientY - stageRect.top;
+  zoomPanX -= (anchorX / Math.max(previousScale, 0.001)) * (nextScale - previousScale);
+  zoomPanY -= (anchorY / Math.max(previousScale, 0.001)) * (nextScale - previousScale);
+  zoomScale = nextScale;
+  applyViewerTransform();
+  updateZoomControls();
+}
+
+function handleViewerPointerDown(event) {
+  if (!zoomModeEnabled || zoomScale <= 1) return;
+  zoomPointerActive = true;
+  zoomPointerStartX = event.clientX;
+  zoomPointerStartY = event.clientY;
+  zoomStartPanX = zoomPanX;
+  zoomStartPanY = zoomPanY;
+  event.currentTarget?.setPointerCapture?.(event.pointerId);
+  applyViewerTransform();
+}
+
+function handleViewerPointerMove(event) {
+  if (!zoomModeEnabled || !zoomPointerActive) return;
+  zoomPanX = zoomStartPanX + (event.clientX - zoomPointerStartX);
+  zoomPanY = zoomStartPanY + (event.clientY - zoomPointerStartY);
+  applyViewerTransform();
+}
+
+function stopViewerPointerInteraction(event) {
+  if (!zoomPointerActive) return;
+  zoomPointerActive = false;
+  event?.currentTarget?.releasePointerCapture?.(event.pointerId);
+  applyViewerTransform();
 }
 
 function displayBox(box, display) {
@@ -1296,9 +1506,11 @@ function decodeAndRender({ diagnostics = false } = {}) {
 
   const count = currentDetections.length;
   qs("countValue").innerText = String(count);
-  qs("exportCsvBtn").disabled = count === 0 && sessionAnalyses.length === 0;
-  qs("exportJsonBtn").disabled = count === 0;
-  qs("exportPngBtn").disabled = count === 0;
+  if (qs("exportCurrentCsvBtn")) qs("exportCurrentCsvBtn").disabled = count === 0;
+  if (qs("exportSessionCsvBtn")) qs("exportSessionCsvBtn").disabled = sessionAnalyses.length === 0;
+  if (qs("exportJsonBtn")) qs("exportJsonBtn").disabled = count === 0;
+  if (qs("exportCurrentPngBtn")) qs("exportCurrentPngBtn").disabled = count === 0;
+  if (qs("exportSessionPngBtn")) qs("exportSessionPngBtn").disabled = sessionAnalyses.length === 0;
   updateDetectionDiagnostics(currentDetections);
   renderTable();
   storeCurrentAnalysis();
@@ -1423,50 +1635,50 @@ function buildSessionSummaryRows() {
   });
 }
 
-function exportCsv() {
-  const rows = sessionAnalyses.length
-    ? sessionAnalyses.flatMap(buildSessionRowsFromAnalysis)
-    : predictionRows();
+function downloadCsvRows(filename, rows) {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
   const lines = [
     headers.join(","),
     ...rows.map((row) => headers.map((h) => window.BurrowImageUtils.csvEscape(row[h])).join(",")),
   ];
-  window.BurrowImageUtils.downloadTextFile(
-    `burrowscope_session_predictions.csv`,
-    lines.join("\n"),
-    "text/csv",
-  );
+  window.BurrowImageUtils.downloadTextFile(filename, lines.join("\n"), "text/csv");
+}
 
-  const summaryRows = sessionAnalyses.length
-    ? buildSessionSummaryRows()
-    : [{
-      session_image_index: 1,
-      image_name: currentImageName || "",
-      burrow_count: currentDetections.length,
-      mean_confidence: Number(computeMean(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
-      confidence_sd: Number(computeStandardDeviation(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
-      low_confidence_fraction: currentDetections.length
-        ? Number((currentDetections.filter((det) => getDetectionConfidence(det) < Math.max(0.35, Number(qs("confidenceSlider").value) + 0.1)).length / currentDetections.length).toFixed(4))
-        : 0,
-      estimated_count_sd: Number((currentDetections.length * 0.08).toFixed(2)),
-      uncertainty_note: currentDetections.length
-        ? "Heuristic estimate from confidence spread and low-confidence detections; not calibrated ground-truth error."
-        : "No detections in this analysed image.",
-    }];
-  const summaryHeaders = Object.keys(summaryRows[0]);
-  const summaryLines = [
-    summaryHeaders.join(","),
-    ...summaryRows.map((row) => summaryHeaders.map((h) => window.BurrowImageUtils.csvEscape(row[h])).join(",")),
-  ];
-  window.BurrowImageUtils.downloadTextFile(
-    `burrowscope_session_image_summary.csv`,
-    summaryLines.join("\n"),
-    "text/csv",
-  );
+function buildCurrentImageSummaryRows() {
+  return [{
+    session_image_index: currentAnalysisIndex >= 0 ? currentAnalysisIndex + 1 : 1,
+    image_name: currentImageName || "",
+    burrow_count: currentDetections.length,
+    mean_confidence: Number(computeMean(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
+    confidence_sd: Number(computeStandardDeviation(currentDetections.map((det) => getDetectionConfidence(det))).toFixed(4)),
+    low_confidence_fraction: currentDetections.length
+      ? Number((currentDetections.filter((det) => getDetectionConfidence(det) < Math.max(0.35, Number(qs("confidenceSlider").value) + 0.1)).length / currentDetections.length).toFixed(4))
+      : 0,
+    estimated_count_sd: Number((currentDetections.length * 0.08).toFixed(2)),
+    uncertainty_note: currentDetections.length
+      ? "Heuristic estimate from confidence spread and low-confidence detections; not calibrated ground-truth error."
+      : "No detections in this analysed image.",
+  }];
+}
 
-  logLine(`Detailed CSV and image-summary CSV exported for ${sessionAnalyses.length || 1} analysed image(s).`);
+function exportCurrentCsv() {
+  const rows = predictionRows();
+  if (!rows.length) return;
+  downloadCsvRows(`${currentImageName || "burrows"}_burrowscope_predictions.csv`, rows);
+  downloadCsvRows(`${currentImageName || "burrows"}_burrow_summary.csv`, buildCurrentImageSummaryRows());
+  logLine(`Current-image CSV exports created for ${currentImageName || "the current image"}.`);
+}
+
+function exportSessionCsv() {
+  const rows = sessionAnalyses.length
+    ? sessionAnalyses.flatMap(buildSessionRowsFromAnalysis)
+    : predictionRows();
+  if (!rows.length) return;
+  downloadCsvRows(`burrowscope_session_predictions.csv`, rows);
+  const summaryRows = sessionAnalyses.length ? buildSessionSummaryRows() : buildCurrentImageSummaryRows();
+  downloadCsvRows(`burrowscope_session_image_summary.csv`, summaryRows);
+  logLine(`Session CSV exports created for ${sessionAnalyses.length || 1} analysed image(s).`);
 }
 
 function exportJson() {
@@ -1497,7 +1709,58 @@ function exportJson() {
   );
 }
 
-function exportPng() {
+function renderAnalysisToPngDataUrl(analysis, img) {
+  const width = img.naturalWidth || img.width;
+  const height = img.naturalHeight || img.height;
+  const baseCanvas = document.createElement("canvas");
+  baseCanvas.width = width;
+  baseCanvas.height = height;
+  const baseCtx = baseCanvas.getContext("2d", { willReadFrequently: true });
+  baseCtx.drawImage(img, 0, 0, width, height);
+
+  const overlayCanvas = document.createElement("canvas");
+  overlayCanvas.width = width;
+  overlayCanvas.height = height;
+  const overlayCtx = overlayCanvas.getContext("2d", { willReadFrequently: true });
+  const detections = (analysis?.detections || []).map((det) => ({ ...det, box: { ...det.box }, centroid: { ...det.centroid }, mask: { ...det.mask } }));
+  const display = {
+    width,
+    height,
+    originalWidth: width,
+    originalHeight: height,
+  };
+  const drawOptions = {
+    maskThreshold: Number(qs("maskSlider").value),
+    maskOpacity: 0.42,
+    masksOptional: true,
+  };
+  if (typeof window.BurrowYoloSeg.drawDetectionMasks === "function") {
+    try {
+      window.BurrowYoloSeg.drawDetectionMasks(overlayCtx, detections, display, drawOptions);
+    } catch (err) {
+      drawBoxesFallback(overlayCtx, detections, display);
+    }
+  } else {
+    drawBoxesFallback(overlayCtx, detections, display);
+  }
+
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = width;
+  exportCanvas.height = height;
+  const exportCtx = exportCanvas.getContext("2d");
+  exportCtx.drawImage(baseCanvas, 0, 0);
+  if (detections.length) exportCtx.drawImage(overlayCanvas, 0, 0);
+  return exportCanvas.toDataURL("image/png");
+}
+
+function triggerPngDownload(dataUrl, filename) {
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = filename;
+  a.click();
+}
+
+function exportCurrentPng() {
   const baseCanvas = qs("viewerCanvas");
   const overlayCanvas = qs("overlayCanvas");
   const exportCanvas = document.createElement("canvas");
@@ -1508,10 +1771,20 @@ function exportPng() {
   if (currentDetections.length && overlayCanvas) {
     exportCtx.drawImage(overlayCanvas, 0, 0);
   }
-  const a = document.createElement("a");
-  a.href = exportCanvas.toDataURL("image/png");
-  a.download = `${currentImageName || "burrows"}_overlay.png`;
-  a.click();
+  triggerPngDownload(exportCanvas.toDataURL("image/png"), `${currentImageName || "burrows"}_overlay_current.png`);
+  logLine(`Current-image PNG exported for ${currentImageName || "the current image"}.`);
+}
+
+async function exportSessionPngs() {
+  if (!sessionAnalyses.length) return;
+  for (let index = 0; index < sessionAnalyses.length; index += 1) {
+    const analysis = sessionAnalyses[index];
+    const img = await loadImageFromSource(analysis.src);
+    const dataUrl = renderAnalysisToPngDataUrl(analysis, img);
+    triggerPngDownload(dataUrl, `${analysis.name || `analysed_image_${index + 1}`}_overlay.png`);
+    await new Promise((resolve) => setTimeout(resolve, 180));
+  }
+  logLine(`Session PNG export triggered for ${sessionAnalyses.length} analysed image(s).`);
 }
 
 const PDF_LOGOS = [
@@ -1544,7 +1817,7 @@ function buildInstructionSections(settings) {
         {
           heading: "Purpose",
           text: [
-            "BurrowScope is a local browser application for inspecting Bank Swallow burrows in bank or cliff photographs. It uses a YOLO segmentation model exported to ONNX. The practical output is per-image detection: post-NMS boxes, mask overlays, centroids, confidence values, and export files.",
+            "BurrowScope is a local browser application for inspecting Bank Swallow burrows in bank or cliff photographs. It uses a YOLO11 segmentation model fine-tuned with transfer learning and then exported to ONNX for local inference. The practical output is per-image detection: post-NMS boxes, mask overlays, centroids, confidence values, and export files.",
             "The app is intended for non-profit research, conservation, field checking, and model-assisted review. It is not a replacement for biological judgement; it is a fast inspection layer that should be reviewed by a person before reporting.",
           ],
         },
@@ -1552,19 +1825,19 @@ function buildInstructionSections(settings) {
           heading: "Current inference configuration",
           text: [
             `Detection engine: Local ONNX. Model file: ${settings.modelName}. Current status shown by the app: ${settings.modelStatus}.`,
-            "The model runs in the browser through ONNX Runtime Web. Images and inference results stay on the local machine unless the user exports and shares them manually.",
+            "The model runs in the browser through ONNX Runtime Web. The ONNX file is the exported inference form of the trained YOLO segmentation model. Images and inference results stay on the local machine unless the user exports and shares them manually.",
             `Confidence threshold: ${settings.confidence}. IoU NMS threshold: ${settings.iou}. Mask threshold: ${settings.mask}. Maximum detections: ${settings.maxDetections}.`,
-            "If there is a newer inference model, use the Load Local .onnx Model File control in Model settings and then run the same image again to compare behaviour.",
+            "The default values are meant to stay fixed in most cases, but they can be useful for troubleshooting if someone uses images that are very different from the training data. If there is a newer inference model, use the Load Local .onnx Model File control in Model settings and then run the same image again to compare behaviour.",
           ],
         },
         {
           heading: "How to run an image or a small batch",
           text: [
             "1. Accept the local-use conditions when the application opens. This only unlocks the local controls.",
-            "2. Use the example gallery for a quick test, or select/import a JPG, PNG, or WebP bank-wall image from your computer.",
-            "3. Press Run Burrow Detection. The count badge reports final post-NMS boxes. NMS means non-maximum suppression: duplicate-like overlapping boxes are filtered inside the same image. Mask status is reported separately, so a failed mask should not erase a valid box detection.",
+            "2. Use the Image input / Bank photo panel to place your own JPG, PNG, or WebP bank-wall images into the app, or use the example gallery for a quick test. You can also select several images or a whole folder.",
+            "3. Press Run Burrow Detection from the top of the Visual workspace panel. The count badge reports final post-NMS boxes. NMS means non-maximum suppression: duplicate-like overlapping boxes are filtered inside the same image. Mask status is reported separately, so a failed mask should not erase a valid box detection.",
             "4. Inspect the overlay visually. Check whether boxes cover real burrow openings, whether centroids are inside those boxes, and whether obvious false positives or missed burrows appear.",
-            "5. Export CSV for tabular review, JSON for full detection objects, or PNG for a visual record. The Instructions button exports this document.",
+            "5. Use Download Current CSV or Download Current PNG for the image on screen. Use Download Session CSV or Download All Session PNGs when you want files for every analysed image in the current session. The Instructions button exports this document.",
           ],
         },
         {
@@ -1573,13 +1846,15 @@ function buildInstructionSections(settings) {
             "Confidence controls how strict the detector is. A lower confidence threshold usually increases recall but may add false positives. A higher threshold usually reduces false positives but may miss faint or partly occluded burrows.",
             "IoU NMS controls duplicate suppression between overlapping boxes. If the same burrow is counted twice, a lower or moderate NMS setting can help. If nearby burrows are merged or suppressed, inspect the image carefully before changing the threshold.",
             "Mask threshold controls the binary mask extracted from the segmentation prototype. The object count is box-centred, because boxes are the most stable ONNX decoding signal. Masks are visual and spatial evidence, but they should not be allowed to delete detections.",
+            "Changes to thresholds are mainly diagnostic and should not be treated as a substitute for retraining or re-validating the model on a new image domain. Behaviour still depends strongly on the original fine-tuning data and the transfer-learning stage used to build the model.",
           ],
         },
         {
           heading: "Export schema",
           text: [
-            "The CSV export is one row per detection and includes: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px, and count_source.",
-            "The JSON export keeps the full detection objects, including box coordinates, centroid, confidence, class name, mask status, mask area, and the same count_source used by the visual count.",
+            "Current CSV exports are tied to the image on screen. Session CSV exports include every analysed image in the current session and also generate an image-level summary table.",
+            "Detection-level CSV rows include: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px, and count_source.",
+            "The JSON export keeps the full detection objects for the current image, including box coordinates, centroid, confidence, class name, mask status, mask area, and the same count_source used by the visual count.",
           ],
         },
         {
@@ -1598,7 +1873,7 @@ function buildInstructionSections(settings) {
         {
           heading: "Objectif",
           text: [
-            "BurrowScope est une application locale dans le navigateur pour inspecter les terriers d'hirondelles de rivage dans des photos de berges ou de falaises. Elle utilise un modèle YOLO de segmentation exporté en ONNX. Le résultat pratique est par image: boîtes post-NMS, masques superposés, centroïdes, valeurs de confiance et fichiers d'export.",
+            "BurrowScope est une application locale dans le navigateur pour inspecter les terriers d'hirondelles de rivage dans des photos de berges ou de falaises. Elle utilise un modèle YOLO11 de segmentation affiné par transfer learning, puis exporté en ONNX pour l'inférence locale. Le résultat pratique est par image: boîtes post-NMS, masques superposés, centroïdes, valeurs de confiance et fichiers d'export.",
             "L'application est pensée pour la recherche sans but lucratif, la conservation, la vérification de terrain et la révision assistée par modèle. Ce n'est pas un remplacement du jugement biologique; c'est une couche rapide d'inspection qui doit être révisée par une personne avant un rapport.",
           ],
         },
@@ -1606,19 +1881,19 @@ function buildInstructionSections(settings) {
           heading: "Configuration actuelle d'inférence",
           text: [
             `Moteur de détection: ONNX local. Fichier modèle: ${settings.modelName}. État affiché par l'application: ${settings.modelStatus}.`,
-            "Le modèle fonctionne dans le navigateur avec ONNX Runtime Web. Les images et les résultats d'inférence restent sur l'ordinateur local, sauf si l'utilisateur les exporte et les partage lui-même.",
+            "Le modèle fonctionne dans le navigateur avec ONNX Runtime Web. Le fichier ONNX est la forme d'inférence exportée du modèle YOLO de segmentation entraîné. Les images et les résultats d'inférence restent sur l'ordinateur local, sauf si l'utilisateur les exporte et les partage lui-même.",
             `Seuil de confiance: ${settings.confidence}. Seuil IoU NMS: ${settings.iou}. Seuil de masque: ${settings.mask}. Nombre maximal de détections: ${settings.maxDetections}.`,
-            "S'il existe une version plus récente du modèle d'inférence, utilisez Load Local .onnx Model File dans Model settings, puis relancez la même image pour comparer le comportement.",
+            "Les valeurs par défaut sont faites pour rester fixes dans la plupart des cas, mais elles peuvent aider au dépannage si quelqu'un utilise des images très différentes de celles du jeu d'entraînement. S'il existe une version plus récente du modèle d'inférence, utilisez Load Local .onnx Model File dans Model settings, puis relancez la même image pour comparer le comportement.",
           ],
         },
         {
           heading: "Comment traiter une image ou un petit lot",
           text: [
             "1. Acceptez les conditions d'utilisation locale à l'ouverture de l'application. Cela déverrouille seulement les contrôles locaux.",
-            "2. Utilisez la galerie d'exemples pour un test rapide, ou sélectionnez/importez une image JPG, PNG ou WebP d'une berge depuis votre ordinateur.",
-            "3. Cliquez sur Run Burrow Detection. Le compteur affiche les boîtes finales post-NMS. NMS veut dire suppression non maximale: les boîtes qui se chevauchent comme des doublons sont filtrées dans la même image. L'état des masques est rapporté séparément; un masque qui échoue ne devrait pas effacer une boîte valide.",
+            "2. Utilisez le panneau Image input / Bank photo pour placer vos propres images JPG, PNG ou WebP dans l'application, ou utilisez la galerie d'exemples pour un test rapide. Vous pouvez aussi choisir plusieurs images ou un dossier complet.",
+            "3. Cliquez sur Run Burrow Detection en haut du panneau Visual workspace. Le compteur affiche les boîtes finales post-NMS. NMS veut dire suppression non maximale: les boîtes qui se chevauchent comme des doublons sont filtrées dans la même image. L'état des masques est rapporté séparément; un masque qui échoue ne devrait pas effacer une boîte valide.",
             "4. Inspectez visuellement la superposition. Vérifiez si les boîtes couvrent de vrais trous de terriers, si les centroïdes sont dans ces boîtes et si des faux positifs ou des terriers manqués apparaissent.",
-            "5. Exportez un CSV pour la révision tabulaire, un JSON pour les objets de détection complets, ou un PNG pour une trace visuelle. Le bouton Instructions exporte ce document.",
+            "5. Utilisez Télécharger le CSV courant ou Télécharger le PNG courant pour l'image affichée. Utilisez Télécharger le CSV de session ou Télécharger tous les PNG de session si vous voulez des fichiers pour toutes les images analysées dans la session courante. Le bouton Instructions exporte ce document.",
           ],
         },
         {
@@ -1627,13 +1902,15 @@ function buildInstructionSections(settings) {
             "Le seuil de confiance contrôle la sévérité du détecteur. Un seuil plus bas augmente souvent le rappel, mais peut ajouter des faux positifs. Un seuil plus élevé réduit souvent les faux positifs, mais peut manquer des terriers faibles ou partiellement cachés.",
             "Le seuil IoU NMS contrôle la suppression des doublons entre boîtes qui se chevauchent. Si le même terrier est compté deux fois, un réglage plus bas ou modéré peut aider. Si des terriers proches sont supprimés, il faut inspecter l'image avant de changer le seuil.",
             "Le seuil de masque contrôle le masque binaire extrait du prototype de segmentation. Le compte d'objets est centré sur les boîtes, parce que les boîtes sont le signal ONNX le plus stable. Les masques donnent une preuve visuelle et spatiale, mais ils ne doivent pas supprimer les détections.",
+            "Les changements de seuils sont surtout diagnostiques et ne remplacent pas un réentraînement ou une nouvelle validation du modèle pour un autre domaine d'images. Le comportement dépend encore fortement des données de fine-tuning et de l'étape de transfer learning utilisée pour construire le modèle.",
           ],
         },
         {
           heading: "Schéma d'export",
           text: [
-            "L'export CSV contient une ligne par détection avec: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px et count_source.",
-            "L'export JSON garde les objets de détection complets, incluant les coordonnées de boîte, le centroïde, la confiance, le nom de classe, l'état du masque, l'aire du masque et le même count_source utilisé par le compteur visuel.",
+            "Les exports CSV courants sont liés à l'image affichée. Les exports CSV de session incluent toutes les images analysées dans la session courante et produisent aussi un tableau résumé au niveau image.",
+            "Les lignes CSV au niveau détection incluent: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px et count_source.",
+            "L'export JSON garde les objets de détection complets pour l'image courante, incluant les coordonnées de boîte, le centroïde, la confiance, le nom de classe, l'état du masque, l'aire du masque et le même count_source utilisé par le compteur visuel.",
           ],
         },
         {
@@ -1652,7 +1929,7 @@ function buildInstructionSections(settings) {
         {
           heading: "Para qué sirve",
           text: [
-            "BurrowScope es una aplicación local en el navegador para revisar madrigueras de golondrina ribereña en fotos de barrancos, bancos o paredes de tierra. Usa un modelo YOLO de segmentación exportado a ONNX. El resultado práctico es por imagen: cajas post-NMS, máscaras, centroides, valores de confianza y archivos exportables.",
+            "BurrowScope es una aplicación local en el navegador para revisar madrigueras de golondrina ribereña en fotos de barrancos, bancos o paredes de tierra. Usa un modelo YOLO11 de segmentación afinado con transfer learning y luego exportado a ONNX para inferencia local. El resultado práctico es por imagen: cajas post-NMS, máscaras, centroides, valores de confianza y archivos exportables.",
             "La app está pensada para investigación sin fines de lucro, conservación, revisión de campo y apoyo al etiquetado o inspección. No reemplaza el criterio biológico; ayuda a revisar rápido, pero los resultados deben ser vistos por una persona antes de usarlos en reportes.",
           ],
         },
@@ -1660,19 +1937,19 @@ function buildInstructionSections(settings) {
           heading: "Configuración actual de inferencia",
           text: [
             `Motor de detección: ONNX local. Archivo del modelo: ${settings.modelName}. Estado mostrado por la app: ${settings.modelStatus}.`,
-            "El modelo corre en el navegador usando ONNX Runtime Web. Las imágenes y los resultados de inferencia se quedan en la máquina local, a menos que el usuario los exporte y los comparta manualmente.",
+            "El modelo corre en el navegador usando ONNX Runtime Web. El archivo ONNX es la forma de inferencia exportada del modelo YOLO de segmentación ya entrenado. Las imágenes y los resultados de inferencia se quedan en la máquina local, a menos que el usuario los exporte y los comparta manualmente.",
             `Umbral de confianza: ${settings.confidence}. Umbral IoU NMS: ${settings.iou}. Umbral de máscara: ${settings.mask}. Máximo de detecciones: ${settings.maxDetections}.`,
-            "Si existe una versión más nueva del modelo de inferencia, use Load Local .onnx Model File en Model settings y vuelva a correr la misma imagen para comparar el comportamiento.",
+            "Los valores por defecto están pensados para mantenerse fijos en la mayoría de los casos, pero pueden servir para troubleshooting si alguien usa imágenes muy distintas a las del entrenamiento. Si existe una versión más nueva del modelo de inferencia, use Load Local .onnx Model File en Model settings y vuelva a correr la misma imagen para comparar el comportamiento.",
           ],
         },
         {
           heading: "Cómo correr una imagen o un lote pequeño",
           text: [
             "1. Acepte las condiciones de uso local cuando se abre la aplicación. Esto solo habilita los controles locales.",
-            "2. Use la galería de ejemplos para una prueba rápida, o seleccione/importe una imagen JPG, PNG o WebP desde su computador.",
-            "3. Presione Run Burrow Detection. El contador muestra las cajas finales post-NMS. NMS significa supresión no máxima: cajas muy traslapadas, parecidas a duplicados, se filtran dentro de la misma imagen. El estado de las máscaras se reporta aparte, así que una máscara fallida no debe borrar una detección válida por caja.",
+            "2. Use el panel Image input / Bank photo para colocar sus propias imágenes JPG, PNG o WebP en la aplicación, o use la galería de ejemplos para una prueba rápida. También puede seleccionar varias imágenes o una carpeta completa.",
+            "3. Presione Run Burrow Detection en la parte superior del panel Visual workspace. El contador muestra las cajas finales post-NMS. NMS significa supresión no máxima: cajas muy traslapadas, parecidas a duplicados, se filtran dentro de la misma imagen. El estado de las máscaras se reporta aparte, así que una máscara fallida no debe borrar una detección válida por caja.",
             "4. Revise visualmente el overlay. Confirme que las cajas estén sobre aberturas reales, que los centroides queden dentro de las cajas y que no haya patrones obvios de falsos positivos o burrows faltantes.",
-            "5. Exporte CSV para revisar tablas, JSON para guardar los objetos completos de detección, o PNG para una evidencia visual. El botón Instructions exporta este documento.",
+            "5. Use Download Current CSV o Download Current PNG para la imagen que está en pantalla. Use Download Session CSV o Download All Session PNGs cuando quiera archivos para todas las imágenes analizadas en la sesión actual. El botón Instructions exporta este documento.",
           ],
         },
         {
@@ -1681,13 +1958,15 @@ function buildInstructionSections(settings) {
             "El umbral de confianza controla qué tan estricto es el detector. Un valor más bajo normalmente aumenta el recall, pero puede meter falsos positivos. Un valor más alto reduce ruido, pero puede perder madrigueras pequeñas, borrosas u ocultas.",
             "IoU NMS controla la supresión de cajas duplicadas que se traslapan. Si una misma madriguera aparece contada dos veces, un ajuste más bajo o moderado puede ayudar. Si madrigueras cercanas se eliminan, revise la imagen antes de cambiar el valor.",
             "El umbral de máscara controla la máscara binaria que sale del prototipo de segmentación. El conteo está centrado en cajas porque las cajas son la señal ONNX más estable. Las máscaras ayudan visual y espacialmente, pero no deben eliminar detecciones válidas.",
+            "Los cambios de umbral son sobre todo diagnósticos y no reemplazan reentrenar o volver a validar el modelo para un dominio nuevo de imágenes. El comportamiento sigue dependiendo bastante de los datos usados en el fine-tuning y de la etapa de transfer learning con la que se construyó el modelo.",
           ],
         },
         {
           heading: "Esquema de exportación",
           text: [
-            "El CSV exportado tiene una fila por detección e incluye: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px y count_source.",
-            "El JSON conserva los objetos completos de detección, incluyendo coordenadas de caja, centroide, confianza, nombre de clase, estado de máscara, área de máscara y el mismo count_source usado por el conteo visual.",
+            "Los CSV de imagen actual están ligados a la imagen en pantalla. Los CSV de sesión incluyen todas las imágenes analizadas en la sesión actual y además generan una tabla resumen por imagen.",
+            "Las filas CSV a nivel de detección incluyen: id, confidence, x1, y1, x2, y2, width, height, centroid_x, centroid_y, mask_available, mask_status, mask_area_px y count_source.",
+            "El JSON conserva los objetos completos de detección para la imagen actual, incluyendo coordenadas de caja, centroide, confianza, nombre de clase, estado de máscara, área de máscara y el mismo count_source usado por el conteo visual.",
           ],
         },
         {
@@ -1921,6 +2200,8 @@ async function initApp() {
   qs("folderSelectBtn")?.addEventListener("click", () => qs("folderInput")?.click());
   qs("openSamplesBtn")?.addEventListener("click", openSampleModal);
   qs("closeSamplesBtn")?.addEventListener("click", closeSampleModal);
+  qs("glossaryBtn")?.addEventListener("click", openGlossaryModal);
+  qs("closeGlossaryBtn")?.addEventListener("click", closeGlossaryModal);
   qs("selectAllSamplesBtn")?.addEventListener("click", selectAllSamples);
   qs("clearSamplesBtn")?.addEventListener("click", clearSampleSelection);
   qs("runSelectedSamplesBtn")?.addEventListener("click", runSelectedSamples);
@@ -1928,8 +2209,15 @@ async function initApp() {
   qs("sampleModal")?.addEventListener("click", (event) => {
     if (event.target === qs("sampleModal")) closeSampleModal();
   });
+  qs("glossaryModal")?.addEventListener("click", (event) => {
+    if (event.target === qs("glossaryModal")) closeGlossaryModal();
+  });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeSampleModal();
+    if (event.key === "Escape") {
+      closeSampleModal();
+      closeGlossaryModal();
+      if (zoomModeEnabled) setZoomMode(false);
+    }
   });
   qs("runBtn").addEventListener("click", runInference);
   qs("toggleOverlayBtn")?.addEventListener("click", () => {
@@ -1940,16 +2228,32 @@ async function initApp() {
     overlayRevealPercent = Number(event.target.value);
     updateOverlayControls();
   });
+  qs("zoomToggleBtn")?.addEventListener("click", () => setZoomMode(!zoomModeEnabled));
+  qs("zoomResetBtn")?.addEventListener("click", resetViewerZoom);
   qs("prevAnalysedBtn")?.addEventListener("click", () => {
     if (currentAnalysisIndex > 0) showAnalysisAt(currentAnalysisIndex - 1).catch((err) => logLine(`Could not open previous analysed image: ${err.message}`));
   });
   qs("nextAnalysedBtn")?.addEventListener("click", () => {
     if (currentAnalysisIndex >= 0 && currentAnalysisIndex < sessionAnalyses.length - 1) showAnalysisAt(currentAnalysisIndex + 1).catch((err) => logLine(`Could not open next analysed image: ${err.message}`));
   });
-  qs("instructionsBtn").addEventListener("click", exportInstructionsPdf);
-  qs("exportCsvBtn").addEventListener("click", exportCsv);
-  qs("exportJsonBtn").addEventListener("click", exportJson);
-  qs("exportPngBtn").addEventListener("click", exportPng);
+  qs("instructionsBtn")?.addEventListener("click", exportInstructionsPdf);
+  qs("exportCurrentCsvBtn")?.addEventListener("click", exportCurrentCsv);
+  qs("exportSessionCsvBtn")?.addEventListener("click", exportSessionCsv);
+  qs("exportJsonBtn")?.addEventListener("click", exportJson);
+  qs("exportCurrentPngBtn")?.addEventListener("click", exportCurrentPng);
+  qs("exportSessionPngBtn")?.addEventListener("click", () => {
+    exportSessionPngs().catch((err) => {
+      logLine(`Session PNG export failed: ${err.message}`);
+      console.error(err);
+    });
+  });
+  const viewerFrame = getViewerFrame();
+  viewerFrame?.addEventListener("wheel", handleViewerWheel, { passive: false });
+  viewerFrame?.addEventListener("pointerdown", handleViewerPointerDown);
+  viewerFrame?.addEventListener("pointermove", handleViewerPointerMove);
+  viewerFrame?.addEventListener("pointerup", stopViewerPointerInteraction);
+  viewerFrame?.addEventListener("pointercancel", stopViewerPointerInteraction);
+  viewerFrame?.addEventListener("pointerleave", stopViewerPointerInteraction);
   ["confidenceSlider", "iouSlider", "maskSlider", "maxDetections"].forEach((id) => {
     qs(id).addEventListener("input", () => {
       updateThresholdLabels();

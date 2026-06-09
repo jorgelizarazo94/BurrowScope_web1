@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Canadian-style maple leaf silhouette</title>
+  <desc id="desc">A clean, scalable maple leaf silhouette on a transparent background, suitable for web icons, masks, patterns, and backgrounds.</desc>
+  <path id="maple-leaf" fill="#E31B23" d="M256 10 L293 113 L371 59 L348 164 L459 122 L421 218 L511 246 L424 306 L456 399 L323 383 L294 418 L285 512 L227 512 L218 418 L189 383 L56 399 L88 306 L1 246 L91 218 L53 122 L164 164 L141 59 L219 113 Z"/>
+</svg>
